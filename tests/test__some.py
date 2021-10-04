@@ -1,4 +1,4 @@
-import pytest
+
 from src import some
 
 
