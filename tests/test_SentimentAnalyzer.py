@@ -1,3 +1,4 @@
+import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 from src.SentimentAnalyzer import SentimentAnalyzer
 
@@ -5,7 +6,7 @@ from src.SentimentAnalyzer import SentimentAnalyzer
 def testAnalyzePost():
     sia = SIA()
     sa = SentimentAnalyzer([], [])
-
+    nltk.download('vader_lexicon')
     headline = "The next bitcoin halving will be in approximately 909 days." \
                " Keep on stacking my friends while bitcoin is cheap."
     post_text = "Quick question. I have money on my cash app with Bitcoin. " \
