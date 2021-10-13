@@ -12,4 +12,3 @@ if len(sys.argv) > 1:
         s.sendall(sys.argv[1].encode('utf_8'))
         data = s.recv(1024)
         print(data.decode('utf_8'))
-        
