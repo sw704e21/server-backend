@@ -11,4 +11,4 @@ if len(sys.argv) > 1:
         s.connect((HOST, PORT))
         s.sendall(sys.argv[1].encode('utf_8'))
         data = s.recv(1024)
-        print(data)
+        print(data.decode('utf_8'))

@@ -20,6 +20,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                     conn.sendall(b'Error recieving da')
                     break
                 if data.decode('utf_8') == 'terminate':
+                    print('Terminating server')
                     sys.exit()
                 queue.put(data)
                 conn.sendall(b'code 100')
