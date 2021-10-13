@@ -17,7 +17,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             while True:
                 data = conn.recv(1024)
                 if not data:
-                    conn.sendall(b'Error recieving da')
+                    conn.sendall(b'Error recieving data')
                     break
                 if data.decode('utf_8') == 'terminate':
                     print('Terminating server')
