@@ -1,19 +1,19 @@
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 
 
-class SentimentAnalyzer():
+class SentimentAnalyzer:
 
     def __init__(self, data, queue):
         self.data = data
         self.queue = queue
 
-    def analyze_posts(self, headline, posttext):
+    def analyze_posts(self, headline, post_text):
         sia = SIA()
 
         headline_score = sia.polarity_scores(headline)
         headline_score['headline'] = headline
 
-        posttext_score = sia.polarity_scores(posttext)
-        posttext_score['post text'] = posttext
+        post_text_score = sia.polarity_scores(post_text)
+        post_text_score['post text'] = post_text
 
-        return headline_score, posttext_score
+        return headline_score, post_text_score

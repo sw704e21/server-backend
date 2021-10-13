@@ -20,4 +20,5 @@ def testAnalyzePost():
     post_text_score = sia.polarity_scores(post_text)
     post_text_score['post text'] = post_text
 
-    assert sa.analyze_posts(headline, post_text) == (headline_score, post_text_score)
+    assert sa.analyze_posts(headline, post_text) == \
+           (headline_score, post_text_score)
