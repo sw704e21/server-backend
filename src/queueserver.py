@@ -18,10 +18,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             while True:
                 data = conn.recv(1024)
                 if not data:
-                    conn.sendall(b'Error recieving data')
+                    conn.sendall(pickle.dumps('Error receiving data'))
                     break
                 if pickle.loads(data) == 'terminate':
-                    print('Terminating server')
+                    conn.sendall(pickle.dumps('Terminating server'))
                     sys.exit()
-                queue.put(data)
-                conn.sendall(b'code 100')
+                queue.put(pickle.dumps(data))
+                conn.sendall(pickle.dumps('Data put into queue'))

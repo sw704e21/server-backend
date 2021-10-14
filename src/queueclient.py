@@ -12,4 +12,4 @@ if len(sys.argv) > 1:
         s.connect((HOST, PORT))
         s.sendall(pickle.dumps(sys.argv[1]))
         data = s.recv(1024)
-        print(data.decode('utf_8'))
+        print(pickle.loads(data))
