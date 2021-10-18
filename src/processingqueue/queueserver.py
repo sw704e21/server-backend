@@ -11,7 +11,7 @@ class QueueServer:
         self.port = port
         self.queue = queue.Queue()
 
-    def recv_timeout(self, the_socket, timeout=2):
+    def _recv_timeout(self, the_socket, timeout=2):
         # make socket non blocking
         the_socket.setblocking(0)
 
@@ -56,7 +56,7 @@ class QueueServer:
                 conn, addr = s.accept()
                 with conn:
                     print('Connected by', addr)
-                    data = self.recv_timeout(conn)
+                    data = self._recv_timeout(conn)
                     print(data)
                     if not data:
                         conn.sendall(pickle.dumps('Error receiving data'))
