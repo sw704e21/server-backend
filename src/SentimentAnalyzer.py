@@ -24,7 +24,7 @@ class SentimentAnalyzer:
 
     def send_data(self, result):
         # Sender result til databasen
-        requests.post(self.url + "/sentiment", result)
+        requests.post(self.url + "/coin", result)
 
     def main_logic(self):
         while(self.queue.empty is not True):
