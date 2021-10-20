@@ -4,7 +4,7 @@ import requests
 
 class SentimentAnalyzer:
 
-    def __init__(self, data, queue, url = ""):
+    def __init__(self, data, queue, url=""):
         self.data = data
         self.queue = queue
         self.url = url
