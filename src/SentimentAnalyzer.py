@@ -27,7 +27,7 @@ class SentimentAnalyzer:
         requests.post(self.url + "/sentiment", result)
 
     def main_logic(self):
-        while(self.queue.empty != True):
+        while(self.queue.empty is not True):
             # Gets element from queue
             data = self.queue.dequeue()
 
