@@ -1,17 +1,19 @@
-import queue
 from processingqueue.queueserver import QueueServer
 from multiprocessing import Process, Manager
 import time
 
-def manage_threads(server, thread_delay):
-     p = Process(target=start_dequeue_thread, args=(server,))
+#A process which starts dequeue processes periodically if queue is non-empty
+def manage_processes(server, process_delay):
+     p = Process(target=start_dequeue_process, args=(server,))
      while True:
+          #If something is in queue, start a new process
           if server.queue.qsize() > 0:
-               p = Process(target=start_dequeue_thread, args=(server,))
                p.start()
-          time.sleep(thread_delay)
+          time.sleep(process_delay)
 
-def start_dequeue_thread(server):
+#While something is in queue, keep processing items in queue
+def start_dequeue_process(server):
+     while server.queue.qsize() > 0:
           server.dequeue()
 
 
@@ -19,6 +21,6 @@ def start_dequeue_thread(server):
 if __name__ == '__main__':
     server = QueueServer()
     server_process = Process(target=server.run)
-    thread_process = Process(target=manage_threads, args=(server, 10))
+    thread_process = Process(target=manage_processes, args=(server, 10))
     server_process.start()
     thread_process.start()
