@@ -14,7 +14,7 @@ def testAnalyzePost():
                 "Can I go to a Bitcoin atm and withdraw cash with my cash" \
                 " app btc wallet address?', 'What you think about binance"
 
-    sa.analyze_posts(headline, post_text)
+    result = sa.analyze_posts(headline, post_text)
 
     headline_score = sia.polarity_scores(headline)
     headline_score['headline'] = headline
@@ -22,5 +22,5 @@ def testAnalyzePost():
     post_text_score = sia.polarity_scores(post_text)
     post_text_score['post text'] = post_text
 
-    assert sa.analyze_posts(headline, post_text) == \
-           (headline_score, post_text_score)
+    assert type(result) == int
+    assert -1 <= result <= 1
