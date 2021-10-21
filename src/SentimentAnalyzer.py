@@ -26,15 +26,15 @@ class SentimentAnalyzer:
         requests.post(self.url + "/coin", result)
 
     def main_logic(self):
-            # Opens the json object
-            data = json.loads(self.data)
+        # Opens the json object
+        data = json.loads(self.data)
 
-            # Extracts the headline and post text.
-            headline = data['title']
-            post_text = data['selftext']
+        # Extracts the headline and post text.
+        headline = data['title']
+        post_text = data['selftext']
 
-            # Analyzes a post, and saves the result in a result variable
-            result = self.analyze_posts(headline, post_text)
+        # Analyzes a post, and saves the result in a result variable
+        result = self.analyze_posts(headline, post_text)
 
-            # Returns True / False?
-            self.send_data(result)
+        # Returns True / False?
+        self.send_data(result)

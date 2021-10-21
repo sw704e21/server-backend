@@ -7,16 +7,16 @@ import time
 def manage_processes(server, process_delay):
     p = Process(target=start_dequeue_process, args=(server,))
     while True:
-       #If something is in queue, start a new process
+        #If something is in queue, start a new process
         if server.queue.qsize() > 0:
             p.start()
         time.sleep(process_delay)
+
 
 # While something is in queue, keep processing items in queue
 def start_dequeue_process(server):
     while server.queue.qsize() > 0:
         server.dequeue()
-
 
 
 if __name__ == '__main__':
