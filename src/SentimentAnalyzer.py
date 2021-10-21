@@ -7,6 +7,7 @@ class SentimentAnalyzer:
 
     def __init__(self, data):
         self.data = data
+        self.url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
 
     def analyze_posts(self, headline, post_text):
         sia = SIA()
