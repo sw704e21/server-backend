@@ -66,3 +66,7 @@ class QueueServer:
                         sys.exit()
                     self.queue.put(pickle.loads(data))
                     conn.sendall(pickle.dumps('Data put into queue'))
+
+    def dequeue(self):
+        # Tager et element fra queue'en
+        return queue.get
