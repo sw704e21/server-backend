@@ -1,4 +1,3 @@
-import json
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
@@ -39,7 +38,6 @@ class SentimentAnalyzer:
         # Extracts the headline and post text.
         headline = data['title']
         post_text = data['selftext']
-
 
         # Analyzes a post, and saves the result in a result variable
         result = self.analyze_posts(headline, post_text)
