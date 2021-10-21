@@ -1,15 +1,16 @@
 import socket
-import queue
 import sys
 import pickle
 import time
+import multiprocessing
+import SentimentAnalyzer
 
 
 class QueueServer:
     def __init__(self, host='127.0.0.1', port=65432):
         self.host = host
         self.port = port
-        self.queue = queue.Queue()
+        self.queue = multiprocessing.Queue()
 
     def _recv_timeout(self, the_socket, timeout=2):
         # make socket non blocking
@@ -68,5 +69,6 @@ class QueueServer:
                     conn.sendall(pickle.dumps('Data put into queue'))
 
     def dequeue(self):
-        # Tager et element fra queue'en
-        return self.queue.get
+        # Takes item from queue and hands it to sentiments analyzer, called by processes from main
+        analyzer = SentimentAnalyzer.SentimentAnalyzer(self.queue.get())
+        analyzer.main_logic()
