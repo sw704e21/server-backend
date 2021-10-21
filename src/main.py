@@ -1,8 +1,9 @@
 from processingqueue.queueserver import QueueServer
-from multiprocessing import Process, Manager
+from multiprocessing import Process
 import time
 
-#A process which starts dequeue processes periodically if queue is non-empty
+
+# A process which starts dequeue processes periodically if queue is non-empty
 def manage_processes(server, process_delay):
      p = Process(target=start_dequeue_process, args=(server,))
      while True:
@@ -11,7 +12,7 @@ def manage_processes(server, process_delay):
                p.start()
           time.sleep(process_delay)
 
-#While something is in queue, keep processing items in queue
+# While something is in queue, keep processing items in queue
 def start_dequeue_process(server):
      while server.queue.qsize() > 0:
           server.dequeue()

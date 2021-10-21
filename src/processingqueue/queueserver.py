@@ -70,6 +70,6 @@ class QueueServer:
                     conn.sendall(pickle.dumps('Data put into queue'))
 
     def dequeue(self):
-        # Tager et element fra queue'en
+        # Takes item from queue and hands it to sentiments analyzer, called by processes from main
         analyzer = SentimentAnalyzer.SentimentAnalyzer(self.queue.get())
         analyzer.main_logic()
