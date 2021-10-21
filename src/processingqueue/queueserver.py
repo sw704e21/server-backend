@@ -1,10 +1,10 @@
 import multiprocessing
 import socket
-import queue
 import sys
 import pickle
 import time
 import multiprocessing
+import SentimentAnalyzer
 
 
 class QueueServer:
@@ -71,4 +71,5 @@ class QueueServer:
 
     def dequeue(self):
         # Tager et element fra queue'en
-        print(self.queue.get())
+        analyzer = SentimentAnalyzer.SentimentAnalyzer(self.queue.get())
+        analyzer.main_logic()

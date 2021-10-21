@@ -4,7 +4,7 @@ from multiprocessing import Process, Manager
 import time
 
 def manage_threads(server, thread_delay):
-     p = Process(target=start_dequeue_thread, args=(0, server))
+     p = Process(target=start_dequeue_thread, args=(server,))
      while True:
           if server.queue.qsize() > 0:
                p = Process(target=start_dequeue_thread, args=(server,))
@@ -19,6 +19,6 @@ def start_dequeue_thread(server):
 if __name__ == '__main__':
     server = QueueServer()
     server_process = Process(target=server.run)
-    thread_process = Process(target=manage_threads, args=(server, 1))
+    thread_process = Process(target=manage_threads, args=(server, 10))
     server_process.start()
     thread_process.start()

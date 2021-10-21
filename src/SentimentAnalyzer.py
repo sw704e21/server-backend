@@ -1,13 +1,12 @@
+import json
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 
 
 class SentimentAnalyzer:
 
-    def __init__(self, data, queue, url=""):
+    def __init__(self, data):
         self.data = data
-        self.queue = queue
-        self.url = url
 
     def analyze_posts(self, headline, post_text):
         sia = SIA()
@@ -27,12 +26,8 @@ class SentimentAnalyzer:
         requests.post(self.url + "/coin", result)
 
     def main_logic(self):
-        while(self.queue.empty is not True):
-            # Gets element from queue
-            data = self.queue.dequeue()
-
             # Opens the json object
-            data.loads()
+            data = json.loads(self.data)
 
             # Extracts the headline and post text.
             headline = data['title']
