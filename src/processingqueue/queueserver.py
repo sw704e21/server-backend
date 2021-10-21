@@ -69,4 +69,4 @@ class QueueServer:
 
     def dequeue(self):
         # Tager et element fra queue'en
-        return queue.get
+        return self.queue.get
