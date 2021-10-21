@@ -30,7 +30,7 @@ class SentimentAnalyzer:
 
     def send_data(self, result):
         # Sender result til databasen
-        requests.post(self.url + "/coin", result)
+        requests.post(self.url + "/coins", result)
 
     def main_logic(self):
         # Opens the json object
