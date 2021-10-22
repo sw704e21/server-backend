@@ -9,6 +9,7 @@ def manage_processes(server, process_delay):
     while True:
         # If something is in queue, start a new process
         if server.queue.qsize() > 0:
+            print('Starting new thread')
             p.start()
         time.sleep(process_delay)
 

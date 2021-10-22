@@ -3,7 +3,7 @@ import sys
 import pickle
 import time
 import multiprocessing
-import SentimentAnalyzer
+from src.SentimentAnalyzer import SentimentAnalyzer
 
 
 class QueueServer:
@@ -70,5 +70,7 @@ class QueueServer:
 
     def dequeue(self):
         # Takes item from queue and hands it to sentiments analyzer, called by processes from main
-        analyzer = SentimentAnalyzer.SentimentAnalyzer(self.queue.get())
+        data = self.queue.get()
+        print(f'Now processing {data}')
+        analyzer = SentimentAnalyzer(data)
         analyzer.main_logic()
