@@ -3,7 +3,7 @@ import sys
 import pickle
 import time
 import multiprocessing
-from src.SentimentAnalyzer import SentimentAnalyzer
+from SentimentAnalyzer import SentimentAnalyzer
 
 
 class QueueServer:
