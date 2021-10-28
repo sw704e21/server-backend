@@ -41,18 +41,14 @@ class SentimentAnalyzer:
         post_text = data['selftext']
 
         # Analyzes a post, and saves the result in a result variable
-        result = self.analyze_posts(headline, post_text)
-
-        # Analyzes a post, and saves the result in a result variable
         score = self.analyze_posts(headline, post_text)
 
         result = {
             'timestamp': data['created_utc'],
             'coin': 'bitcoin',  # WARNING: placeholder value
             'sentiment': score,
-            'interaction': data['score'] + data['num_comments'],
+            'interaction': int(data['score']) + int(data['num_comments']),
             'url': data['url']
         }
 
-        # Returns True / False?
         self.send_data(result)
