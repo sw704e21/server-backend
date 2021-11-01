@@ -48,7 +48,7 @@ class SentimentAnalyzer:
 
         result = {
             'timestamp': data['created_utc'],
-            'coin': 'bitcoin',  # WARNING: placeholder value
+            'coin': data['source'],
             'sentiment': score,
             'interaction': data['score'] + data['num_comments'],
             'url': data['url']
