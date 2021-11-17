@@ -52,8 +52,10 @@ class QueueServer:
         print(f'Now listening on {self.host}:{self.port}')
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((self.host, self.port))
+
             while True:
                 s.listen()
+                time.sleep(1000)
                 conn, addr = s.accept()
                 with conn:
                     print('Connected by', addr)
