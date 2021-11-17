@@ -49,7 +49,7 @@ class SentimentAnalyzer:
             'coin': data['source'],
             'sentiment': score,
             'interaction': int(data['score']) + int(data['num_comments']),
-            'url': data['url']
+            'url': data['permalink']
         }
 
         self.send_data(result)
