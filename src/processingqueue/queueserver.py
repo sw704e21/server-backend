@@ -55,7 +55,6 @@ class QueueServer:
 
             while True:
                 s.listen()
-                time.sleep(1000)
                 conn, addr = s.accept()
                 with conn:
                     print('Connected by', addr)
