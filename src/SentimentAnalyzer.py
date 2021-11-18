@@ -3,6 +3,7 @@ import requests
 import json
 import nltk
 
+
 class SentimentAnalyzer:
 
     def __init__(self, data):
