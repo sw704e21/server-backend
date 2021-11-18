@@ -1,6 +1,7 @@
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
+import nltk
 
 
 class SentimentAnalyzer:
@@ -8,29 +9,18 @@ class SentimentAnalyzer:
     def __init__(self, data):
         self.data = data
         self.url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
+        nltk.download('vader_lexicon')
 
-    def analyze_posts(self, headline, post_text):
+    def analyze_posts(self, text):
         sia = SIA()
 
-        # Extracter headline
-        headline_score = sia.polarity_scores(headline)
-        headline_score['headline'] = headline
+        score = sia.polarity_scores(text)
 
-        # Extracter post text
-        post_text_score = sia.polarity_scores(post_text)
-        post_text_score['post text'] = post_text
-
-        result = 0
-        if headline_score['compound'] > 0 and post_text_score['compound'] > 0:
-            result = 1
-        elif headline_score['compound'] < 0 and post_text_score['compound'] < 0:
-            result = -1
-
-        return result
+        return score['compound']
 
     def send_data(self, result):
         # Sender result til databasen
-        print(f'Noe sending {result}')
+        print(f'Now sending {result}')
         requests.post(self.url + "/coins", result)
 
     def main_logic(self):
@@ -40,9 +30,10 @@ class SentimentAnalyzer:
         # Extracts the headline and post text.
         headline = data['title']
         post_text = data['selftext']
+        full_text = headline + post_text
 
         # Analyzes a post, and saves the result in a result variable
-        score = self.analyze_posts(headline, post_text)
+        score = self.analyze_posts(full_text)
 
         result = {
             'timestamp': data['created_utc'],
