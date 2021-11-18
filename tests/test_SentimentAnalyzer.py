@@ -23,5 +23,5 @@ def testAnalyzePost():
     post_text_score = sia.polarity_scores(post_text)
     post_text_score['post text'] = post_text
 
-    assert type(result) == int
+    assert type(result) == float
     assert -1 <= result <= 1
