@@ -154,14 +154,12 @@ class SentimentAnalyzer:
         #
         for url in deldictionary.copy():
             posttime = deldictionary[url]
-            # REMEMBER: Fix time
             # Checking
             if (datetime.datetime.utcnow() - posttime > 604800):
                 # If the time constraint is satisfied, the post is deleted from the deletecitionary, and added to the
                 # deletedic.
                 deletedic[url] = posttime
                 del deldictionary[url]
-                # REMEMBER: Delete from dictionary
 
         a_file = open("deletedictionary.pkl", "wb")
         pickle.dump(deldictionary, a_file)
