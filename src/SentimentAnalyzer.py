@@ -156,7 +156,8 @@ class SentimentAnalyzer:
             # REMEMBER: Fix time
             # Checking
             if (posttime - time) < 0:
-                # If the time constraint is satisfied, the post is deleted from the deletecitionary, and added to the deletedic.
+                # If the time constraint is satisfied, the post is deleted from the deletecitionary, and added to the
+                # deletedic.
                 deletedic[url] = posttime
                 del deldictionary[url]
                 # REMEMBER: Delete from dictionary
@@ -233,7 +234,7 @@ class SentimentAnalyzer:
                      'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7jdq/i_have_114_running/', 'score': 1,
                      'created_utc': 1637068527,
                      'selftext': 'What is the benefit to me.  It has been running for about a month with good in and '
-                                 'out connections.', 
+                                 'out connections.',
                      'num_comments': 0}
         testpost3 = {'title': 'No change to the extended forecast, .44 next stop',
                      'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7kzb'
@@ -273,6 +274,21 @@ class SentimentAnalyzer:
                          '/nftmusicstream_incredible_tech_live_utility_the/',
             'score': 1, 'created_utc': 1637069725, 'selftext': '', 'num_comments': 1}
 
+        post_text = testpost['title']
+        timestamp = testpost['created_utc']
+        url = testpost['full_link']
+        self.manage_dictionary(url, timestamp, post_text)
+
+        post_text = testpost2['title']
+        timestamp = testpost2['created_utc']
+        url = testpost2['full_link']
+        self.manage_dictionary(url, timestamp, post_text)
+
+        post_text = testpost3['title']
+        timestamp = testpost3['created_utc']
+        url = testpost3['full_link']
+        self.manage_dictionary(url, timestamp, post_text)
+
         post_text = testpost4['title']
         timestamp = testpost4['created_utc']
         url = testpost4['full_link']
@@ -281,6 +297,26 @@ class SentimentAnalyzer:
         post_text = testpost5['title']
         timestamp = testpost5['created_utc']
         url = testpost5['full_link']
+        self.manage_dictionary(url, timestamp, post_text)
+
+        post_text = testpost6['title']
+        timestamp = testpost6['created_utc']
+        url = testpost6['full_link']
+        self.manage_dictionary(url, timestamp, post_text)
+
+        post_text = testpost7['title']
+        timestamp = testpost7['created_utc']
+        url = testpost7['full_link']
+        self.manage_dictionary(url, timestamp, post_text)
+
+        post_text = testpost8['title']
+        timestamp = testpost8['created_utc']
+        url = testpost8['full_link']
+        self.manage_dictionary(url, timestamp, post_text)
+
+        post_text = testpost9['title']
+        timestamp = testpost9['created_utc']
+        url = testpost9['full_link']
         self.manage_dictionary(url, timestamp, post_text)
 
         self.maintain_dictionary(1637069080)
