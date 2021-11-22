@@ -4,6 +4,7 @@ import socket
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
+import datetime
 
 
 class SentimentAnalyzer:
@@ -11,17 +12,17 @@ class SentimentAnalyzer:
     def __init__(self, data):
         self.data = data
         self.url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
-        self.initialize_pickledic()
-        self.initialize_pickledel()
+        self.initialize_dictionary()
+        self.initialize_delete_dictionary()
 
-    def initialize_pickledic(self):
+    def initialize_dictionary(self):
         dic = {}
 
         a_file = open("worddictionary.pkl", "wb")
         pickle.dump(dic, a_file)
         a_file.close()
 
-    def initialize_pickledel(self):
+    def initialize_delete_dictionary(self):
         dic = {}
 
         a_file = open("deletedictionary.pkl", "wb")
@@ -120,14 +121,14 @@ class SentimentAnalyzer:
                 dictionary[word] = temp
 
         # Adding the post to the delete-dictionary
-        self.addtodeldic(url, timestamp)
+        self.add_to_delete_dictionary(url, timestamp)
 
         # Opdaterer worddictionary
         a_file = open("worddictionary.pkl", "wb")
         pickle.dump(dictionary, a_file)
         a_file.close()
 
-    def addtodeldic(self, url, timestamp):
+    def add_to_delete_dictionary(self, url, timestamp):
         # Åbner deletedictionary
         a_file = open("deletedictionary.pkl", "rb")
         dictionary = pickle.load(a_file)
@@ -155,7 +156,7 @@ class SentimentAnalyzer:
             posttime = deldictionary[url]
             # REMEMBER: Fix time
             # Checking
-            if (posttime - time) < 0:
+            if (datetime.datetime.utcnow() - posttime > 604800):
                 # If the time constraint is satisfied, the post is deleted from the deletecitionary, and added to the
                 # deletedic.
                 deletedic[url] = posttime
@@ -202,7 +203,7 @@ class SentimentAnalyzer:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # reserve a port on your computer in our
-        # case it is 12345 but it can be anything
+        # case it is 1337 but it can be anything
         port = 1337
 
         # Next bind to the port
