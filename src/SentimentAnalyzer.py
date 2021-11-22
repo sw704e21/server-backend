@@ -232,33 +232,45 @@ class SentimentAnalyzer:
         testpost2 = {'title': 'I have 1.14 running',
                      'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7jdq/i_have_114_running/', 'score': 1,
                      'created_utc': 1637068527,
-                     'selftext': 'What is the benefit to me.  It has been running for about a month with good in and out connections.',
+                     'selftext': 'What is the benefit to me.  It has been running for about a month with good in and '
+                                 'out connections.', 
                      'num_comments': 0}
         testpost3 = {'title': 'No change to the extended forecast, .44 next stop',
-                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7kzb/no_change_to_the_extended_forecast_44_next_stop/',
+                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7kzb'
+                                  '/no_change_to_the_extended_forecast_44_next_stop/',
                      'score': 1, 'created_utc': 1637068678, 'selftext': '', 'num_comments': 0}
         testpost4 = {
-            'title': "When you post that you just 100Xed your crypto investment and all of a sudden every girl you've never met be like..",
-            'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7n6o/when_you_post_that_you_just_100xed_your_crypto/',
+            'title': "When you post that you just 100Xed your crypto investment and all of a sudden every girl you've "
+                     "never met be like..",
+            'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7n6o'
+                         '/when_you_post_that_you_just_100xed_your_crypto/',
             'score': 1, 'created_utc': 1637068881, 'selftext': '', 'num_comments': 0}
         testpost5 = {
-            'title': 'This is how it ended up for people following a guy preaching about rockets, spaceships and going to the moon...',
-            'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7paf/this_is_how_it_ended_up_for_people_following_a/',
+            'title': 'This is how it ended up for people following a guy preaching about rockets, spaceships and '
+                     'going to the moon...',
+            'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7paf'
+                         '/this_is_how_it_ended_up_for_people_following_a/',
             'score': 1, 'created_utc': 1637069080, 'selftext': '', 'num_comments': 0}
         testpost6 = {'title': 'I had a dream last night BTC was $663,000. What would that put DOGE at?',
-                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7r30/i_had_a_dream_last_night_btc_was_663000_what/',
+                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7r30'
+                                  '/i_had_a_dream_last_night_btc_was_663000_what/',
                      'score': 1, 'created_utc': 1637069242, 'selftext': '', 'num_comments': 0}
         testpost7 = {'title': 'If you ever wanted to get into Doge now would be the time to buy a nice bag',
-                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7rw8/if_you_ever_wanted_to_get_into_doge_now_would_be/',
+                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7rw8'
+                                  '/if_you_ever_wanted_to_get_into_doge_now_would_be/',
                      'score': 1, 'created_utc': 1637069310, 'selftext': '[removed]', 'num_comments': 0}
         testpost8 = {'title': 'Is Binance short on doge, they stopped withdrawals!!!',
-                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7rx9/is_binance_short_on_doge_they_stopped_withdrawals/',
+                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7rx9'
+                                  '/is_binance_short_on_doge_they_stopped_withdrawals/',
                      'score': 1, 'created_utc': 1637069314,
-                     'selftext': 'It only makes sense if you are very short to lock it down like they have and blame it on a "technical issues".',
+                     'selftext': 'It only makes sense if you are very short to lock it down like they have and blame '
+                                 'it on a "technical issues".',
                      'num_comments': 0}
         testpost9 = {
-            'title': '🎧 NFTMusic.Stream 🎧 Incredible Tech. Live Utility. The most underrated project on BSC. 💎 Load your bags before any moment it 🎗',
-            'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7wrh/nftmusicstream_incredible_tech_live_utility_the/',
+            'title': '🎧 NFTMusic.Stream 🎧 Incredible Tech. Live Utility. The most underrated project on BSC. 💎 '
+                     'Load your bags before any moment it 🎗',
+            'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7wrh'
+                         '/nftmusicstream_incredible_tech_live_utility_the/',
             'score': 1, 'created_utc': 1637069725, 'selftext': '', 'num_comments': 1}
 
         post_text = testpost4['title']
