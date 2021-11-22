@@ -5,6 +5,7 @@ import requests
 import json
 import datetime
 import nltk
+import os
 
 
 class SentimentAnalyzer:
@@ -12,20 +13,17 @@ class SentimentAnalyzer:
         self.data = data
         self.url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
 
-        self.initialize_dictionary()
-        self.initialize_delete_dictionary()
-
-    def initialize_dictionary(self):
+    def initialize_dictionary(self, coin):
         dic = {}
 
-        a_file = open("worddictionary.pkl", "wb")
+        a_file = open("worddictionary%s.pkl" % coin, "wb")
         pickle.dump(dic, a_file)
         a_file.close()
 
-    def initialize_delete_dictionary(self):
+    def initialize_delete_dictionary(self, coin):
         dic = {}
 
-        a_file = open("deletedictionary.pkl", "wb")
+        a_file = open("deletedictionary%s.pkl" % coin, "wb")
         pickle.dump(dic, a_file)
         a_file.close()
 
@@ -60,7 +58,10 @@ class SentimentAnalyzer:
         url = data['url']
 
         # Updates the Word Dictionary
-        self.manage_dictionary(url, timestamp, post_text)
+        # coin = data['coin']
+        coin = 'btc'
+
+        self.manage_dictionary(url, timestamp, post_text, coin)
 
         result = {
             'timestamp': data['created_utc'],
@@ -72,7 +73,14 @@ class SentimentAnalyzer:
 
         self.send_data(result)
 
-    def manage_dictionary(self, url, timestamp, post_text):
+    def manage_dictionary(self, url, timestamp, post_text, coin):
+        # Check hvis dokumenterne eksisterer for den givne coin
+        if not os.path.exists("./worddictionary%s.pkl" % coin):
+            self.initialize_dictionary(coin)
+
+        if not os.path.exists("./deletedictionary%s.pkl" % coin):
+            self.initialize_delete_dictionary(coin)
+
         # Fixing sentiment:
         dic = {}
         # Splitting the text into tokens, splitting them at each space symbols.
@@ -86,7 +94,7 @@ class SentimentAnalyzer:
                 dic[word] = 1
 
         # Loader dictionary med alle words
-        a_file = open("worddictionary.pkl", "rb")
+        a_file = open("worddictionary%s.pkl" % coin, "rb")
         dictionary = pickle.load(a_file)
         a_file.close()
 
@@ -112,16 +120,17 @@ class SentimentAnalyzer:
                 dictionary[word] = temp
 
         # Adding the post to the delete-dictionary
-        self.add_to_delete_dictionary(url, timestamp)
+        self.add_to_delete_dictionary(url, timestamp, coin)
 
         # Opdaterer worddictionary
-        a_file = open("worddictionary.pkl", "wb")
+        print(dictionary)
+        a_file = open("worddictionary%s.pkl" % coin, "wb")
         pickle.dump(dictionary, a_file)
         a_file.close()
 
-    def add_to_delete_dictionary(self, url, timestamp):
+    def add_to_delete_dictionary(self, url, timestamp, coin):
         # Åbner deletedictionary
-        a_file = open("deletedictionary.pkl", "rb")
+        a_file = open("deletedictionary%s.pkl" % coin, "rb")
         dictionary = pickle.load(a_file)
         a_file.close()
 
@@ -129,13 +138,13 @@ class SentimentAnalyzer:
         dictionary[url] = timestamp
 
         # Gemmer deletedictionary
-        a_file = open("deletedictionary.pkl", "wb")
+        a_file = open("deletedictionary%s.pkl" % coin, "wb")
         pickle.dump(dictionary, a_file)
         a_file.close()
 
-    def maintain_dictionary(self, time):
+    def maintain_dictionary(self, time, coin):
         # Loader deletedictionary
-        a_file = open("deletedictionary.pkl", "rb")
+        a_file = open("deletedictionary%s.pkl" % coin, "rb")
         deldictionary = pickle.load(a_file)
         a_file.close()
 
@@ -146,18 +155,18 @@ class SentimentAnalyzer:
         for url in deldictionary.copy():
             posttime = deldictionary[url]
             # Checking
-            if (datetime.datetime.utcnow() - posttime > 604800):
+            if (int(datetime.datetime.utcnow().timestamp()) - posttime > 604800):
                 # If the time constraint is satisfied, the post is deleted from the deletecitionary, and added to the
                 # deletedic.
                 deletedic[url] = posttime
                 del deldictionary[url]
 
-        a_file = open("deletedictionary.pkl", "wb")
+        a_file = open("deletedictionary%s.pkl" % coin, "wb")
         pickle.dump(deldictionary, a_file)
         a_file.close()
 
         # Delete posts from dictionary
-        a_file = open("worddictionary.pkl", "rb")
+        a_file = open("worddictionary%s.pkl" % coin, "rb")
         dictionary = pickle.load(a_file)
         a_file.close()
 
@@ -181,7 +190,7 @@ class SentimentAnalyzer:
                 del dictionary[word]
 
         # Gemmer dictionary, som nu er opdatereret
-        a_file = open("worddictionary.pkl", "wb")
+        a_file = open("worddictionary%s.pkl" % coin, "wb")
         pickle.dump(dictionary, a_file)
         a_file.close()
 
@@ -208,11 +217,13 @@ class SentimentAnalyzer:
             # Establish connection with client.
             c, addr = s.accept()
             print('Got connection from', addr)
+            coin = s.recv(1024).decode('ascii')
 
             # send a thank you message to the client. encoding to send byte type.
             c.send('Thank you for connecting'.encode())
-            worddictionary = open('worddictionary.pkl', 'wb')  # open in binary
-            c.send(worddictionary)
+            worddictionary = open('worddictionary%s.pkl' % coin, 'rb')  # open in binary
+
+            c.send(json.dumps(worddictionary))
             # Close the connection with the client
             c.close()
 
@@ -267,46 +278,46 @@ class SentimentAnalyzer:
         post_text = testpost['title']
         timestamp = testpost['created_utc']
         url = testpost['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
         post_text = testpost2['title']
         timestamp = testpost2['created_utc']
         url = testpost2['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
         post_text = testpost3['title']
         timestamp = testpost3['created_utc']
         url = testpost3['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
         post_text = testpost4['title']
         timestamp = testpost4['created_utc']
         url = testpost4['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
         post_text = testpost5['title']
         timestamp = testpost5['created_utc']
         url = testpost5['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
         post_text = testpost6['title']
         timestamp = testpost6['created_utc']
         url = testpost6['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
         post_text = testpost7['title']
         timestamp = testpost7['created_utc']
         url = testpost7['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
         post_text = testpost8['title']
         timestamp = testpost8['created_utc']
         url = testpost8['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
         post_text = testpost9['title']
         timestamp = testpost9['created_utc']
         url = testpost9['full_link']
-        self.manage_dictionary(url, timestamp, post_text)
+        self.manage_dictionary(url, timestamp, post_text, 'btc')
 
-        self.maintain_dictionary(1637069080)
+        self.maintain_dictionary(1637069080, 'btc')
