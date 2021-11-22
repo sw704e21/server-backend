@@ -1,14 +1,10 @@
 import pickle
 import socket
-
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
-
 import datetime
-
 import nltk
-
 
 
 class SentimentAnalyzer:
