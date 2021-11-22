@@ -23,6 +23,29 @@ class SentimentAnalyzer:
         print(f'Now sending {result}')
         requests.post(self.url + "/coins", result)
 
+    # Return a list of all coin names and identifiers
+    def get_all_coins(self):
+        coins = json.loads(requests.get(self.url + '/coins/all').content)
+        coin_names = []
+        for element in coins:
+            coin_names.append((element['name'], element['identifier']))
+        return coin_names
+
+    def run_analysis(self, full_text, data, coins):
+        
+        # Analyzes a post, and saves the result in a result variable
+        score = self.analyze_posts(full_text)
+
+        result = {
+            'timestamp': data['created_utc'],
+            'coin': coins,
+            'sentiment': score,
+            'interaction': int(data['score']) + int(data['num_comments']),
+            'url': data['permalink']
+        }
+
+        self.send_data(result)
+
     def main_logic(self):
         # Opens the json object
         data = json.loads(self.data)
@@ -31,16 +54,10 @@ class SentimentAnalyzer:
         headline = data['title']
         post_text = data['selftext']
         full_text = headline + post_text
+        associated_coins = []
 
-        # Analyzes a post, and saves the result in a result variable
-        score = self.analyze_posts(full_text)
-
-        result = {
-            'timestamp': data['created_utc'],
-            'coin': data['source'],
-            'sentiment': score,
-            'interaction': int(data['score']) + int(data['num_comments']),
-            'url': data['permalink']
-        }
-
-        self.send_data(result)
+        all_coins = self.get_all_coins()
+        for coin in all_coins:
+            if coin[0] in full_text or coin[1] in full_text:
+                    associated_coins.append(coin[0])
+        self.run_analysis()

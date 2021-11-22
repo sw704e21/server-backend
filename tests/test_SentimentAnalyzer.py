@@ -1,7 +1,16 @@
+import json
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
+import requests
 from src.SentimentAnalyzer import SentimentAnalyzer
 
+def testAnalyzeGetCoinNames():
+    sia = SIA()
+    sa = SentimentAnalyzer([])
+    coin_list = sa.get_all_coins()
+    assert ('dogecoin', 'DOGE') in coin_list
+    assert ('bitcoin', 'BTC') in coin_list
+    assert len(json.loads(requests.get('http://cryptoserver.northeurope.cloudapp.azure.com' + '/coins/all').content)) == len(coin_list)
 
 def testAnalyzePost():
     nltk.download('vader_lexicon')
