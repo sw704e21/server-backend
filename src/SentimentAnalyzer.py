@@ -1,5 +1,6 @@
 import ast
 import pickle
+import socket
 
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
@@ -12,11 +13,19 @@ class SentimentAnalyzer:
         self.data = data
         self.url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
         self.initialize_pickledic()
+        self.initialize_pickledel()
 
     def initialize_pickledic(self):
         dic = {}
 
         a_file = open("worddictionary.pkl", "wb")
+        pickle.dump(dic, a_file)
+        a_file.close()
+
+    def initialize_pickledel(self):
+        dic = {}
+
+        a_file = open("deletedictionary.pkl", "wb")
         pickle.dump(dic, a_file)
         a_file.close()
 
@@ -59,7 +68,7 @@ class SentimentAnalyzer:
         timestamp = data['created_utc']
         url = data['url']
 
-        #Updates the Word Dictionary
+        # Updates the Word Dictionary
         self.manage_dictionary(url, timestamp, post_text)
 
         result = {
@@ -72,21 +81,20 @@ class SentimentAnalyzer:
 
         self.send_data(result)
 
-
-    # { "word1": {"total": 5, "occurences": [(2,"url1", 12345678), (3, "url2", 23456789)]}, "word2": {"total": 3, "occurences": [(3, "url3". 12345678), (4, "url4", 12345679)]} }
     def manage_dictionary(self, url, timestamp, post_text):
         # Fixing sentiment:
         dic = {}
+        # Splitting the text into tokens, splitting them at each space symbols.
         post_text = post_text.split()
+
+        # Laver et dictionary, som gemmer words og mapper det til total occurence
         for word in post_text:
             if word in dic:
                 dic[word] = dic[word] + 1
             else:
                 dic[word] = 1
 
-        # Load dictionary
-
-
+        # Loader dictionary med alle words
         a_file = open("worddictionary.pkl", "rb")
         dictionary = pickle.load(a_file)
         a_file.close()
@@ -98,24 +106,125 @@ class SentimentAnalyzer:
                 # Hvis det gør, adder total amount, sæt url og timestamp ind.
                 temp = dictionary[word]
                 total = temp['total'] + dic[word]
-                occurences = list(temp['occurences'])
-                occurences.append([dic[word], url, timestamp])
+                occurences = temp['occurences']
+                occurences[url] = (dic[word], timestamp)
                 temp['total'] = total
                 temp['occurences'] = occurences
                 dictionary[word] = temp
             else:
                 # Hvis ikke, lav en ny entry i dictionary, sæt total amount, url og timestamp.
                 temp = {}
+                ocur = {}
                 temp['total'] = dic[word]
-                temp['occurences'] = (dic[word], url, timestamp)
+                ocur[url] = (dic[word], timestamp)
+                temp['occurences'] = ocur
                 dictionary[word] = temp
 
-        print(dictionary)
+        # Adding the post to the delete-dictionary
+        self.addtodeldic(url, timestamp)
+
+        # Opdaterer worddictionary
         a_file = open("worddictionary.pkl", "wb")
         pickle.dump(dictionary, a_file)
         a_file.close()
 
-        #Tilføj til RemoveList dictionary: url, amount of timestamp
+    def addtodeldic(self, url, timestamp):
+        # Åbner deletedictionary
+        a_file = open("deletedictionary.pkl", "rb")
+        dictionary = pickle.load(a_file)
+        a_file.close()
+
+        # Opdatere deledictionary
+        dictionary[url] = timestamp
+
+        # Gemmer deletedictionary
+        a_file = open("deletedictionary.pkl", "wb")
+        pickle.dump(dictionary, a_file)
+        a_file.close()
+
+    def maintain_dictionary(self, time):
+        # Loader deletedictionary
+        a_file = open("deletedictionary.pkl", "rb")
+        deldictionary = pickle.load(a_file)
+        a_file.close()
+
+        # Laver et dictionary, som indehoder de posts som skal slettes
+        deletedic = {}
+
+        #
+        for url in deldictionary.copy():
+            posttime = deldictionary[url]
+            # REMEMBER: Fix time
+            # Checking
+            if (posttime - time) < 0:
+                # If the time constraint is satisfied, the post is deleted from the deletecitionary, and added to the deletedic.
+                deletedic[url] = posttime
+                del deldictionary[url]
+                # REMEMBER: Delete from dictionary
+
+        a_file = open("deletedictionary.pkl", "wb")
+        pickle.dump(deldictionary, a_file)
+        a_file.close()
+
+        # Delete posts from dictionary
+        a_file = open("worddictionary.pkl", "rb")
+        dictionary = pickle.load(a_file)
+        a_file.close()
+
+        # For hver ord i dictionary
+        for word in dictionary.copy():
+            # Der checkes for hvert post, om den har en occurence i word.
+            for post in deletedic:
+                theword = dictionary[word]
+                occurences = theword['occurences']
+
+                # Hvis den har det, så slettes den derfra, og total opdateres
+                if post in occurences:
+                    test = occurences[post]
+                    del occurences[post]
+                    theword['total'] = theword['total'] - test[0]
+                    theword['occurences'] = occurences
+                    dictionary[word] = theword
+            # Hvis word har en total på 0, så slettes word fra dictionary.
+            theword = dictionary[word]
+            if theword['total'] == 0:
+                del dictionary[word]
+
+        # Gemmer dictionary, som nu er opdatereret
+        a_file = open("worddictionary.pkl", "wb")
+        pickle.dump(dictionary, a_file)
+        a_file.close()
+
+    def socket_document(self):
+        # Here we made a socket instance and passed it two parameters.
+        # AF_INET refers to the address-family ipv4. The SOCK_STREAM means connection-oriented TCP protocol.
+        # Now we can connect to a server using this socket.3
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # reserve a port on your computer in our
+        # case it is 12345 but it can be anything
+        port = 1337
+
+        # Next bind to the port
+        # we have not typed any ip in the ip field
+        # instead we have inputted an empty string
+        # this makes the server listen to requests
+        # coming from other computers on the network
+        s.bind(('', port))
+
+        s.listen(5)
+
+        while True:
+            # Establish connection with client.
+            c, addr = s.accept()
+            print('Got connection from', addr)
+
+            # send a thank you message to the client. encoding to send byte type.
+            c.send('Thank you for connecting'.encode())
+            worddictionary = open('worddictionary.pkl', 'wb')  # open in binary
+            c.send(worddictionary)
+            # Close the connection with the client
+            c.close()
 
     def test(self):
         testpost = {'title': 'Doge is speaking Tesla',
@@ -163,5 +272,4 @@ class SentimentAnalyzer:
         url = testpost5['full_link']
         self.manage_dictionary(url, timestamp, post_text)
 
-
-
+        self.maintain_dictionary(1637069080)
