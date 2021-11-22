@@ -12,7 +12,6 @@ import nltk
 
 
 class SentimentAnalyzer:
-
     def __init__(self, data):
         self.data = data
         self.url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
@@ -35,7 +34,6 @@ class SentimentAnalyzer:
         a_file.close()
 
         nltk.download('vader_lexicon')
-
 
     def analyze_posts(self, text):
         sia = SIA()
