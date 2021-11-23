@@ -44,7 +44,15 @@ class SentimentAnalyzer:
             'url': data['permalink']
         }
 
-        self.send_data(result)
+        #self.send_data(result)
+
+    def identify_coins(self, text):
+        associated_coins = []
+        all_coins = self.get_all_coins()
+        for coin in all_coins:
+            if coin[0].casefold() in text.casefold() or coin[1].casefold() in text.casefold():
+                    associated_coins.append(coin[0])
+        return associated_coins
 
     def main_logic(self):
         # Opens the json object
@@ -54,10 +62,6 @@ class SentimentAnalyzer:
         headline = data['title']
         post_text = data['selftext']
         full_text = headline + post_text
-        associated_coins = []
-
-        all_coins = self.get_all_coins()
-        for coin in all_coins:
-            if coin[0] in full_text or coin[1] in full_text:
-                    associated_coins.append(coin[0])
-        self.run_analysis()
+        associated_coins = self.identify_coins(full_text)
+        self.run_analysis(full_text, data, associated_coins)
+        
