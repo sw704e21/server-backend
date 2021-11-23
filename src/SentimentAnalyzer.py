@@ -57,7 +57,7 @@ class SentimentAnalyzer:
 
         # Extracts the timestamp and url.
         timestamp = data['created_utc']
-        url = data['url']
+        url = data['permalink']
 
         # Updates the Word Dictionary
         self.manage_dictionary(url, timestamp, post_text)
