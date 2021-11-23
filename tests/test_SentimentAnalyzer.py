@@ -7,12 +7,15 @@ from src.SentimentAnalyzer import SentimentAnalyzer
 
 server_url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
 
+
 def test_analyze_get_coin_names():
     sa = SentimentAnalyzer([])
     coin_list = sa.get_all_coins()
     assert ('dogecoin', 'DOGE') in coin_list
     assert ('bitcoin', 'BTC') in coin_list
-    assert len(json.loads(requests.get(server_url + '/coins/all').content)) == len(coin_list)
+    assert (len(json.loads(requests.get
+            (server_url + '/coins/all').content)) == len(coin_list))
+
 
 def test_analyze_multiple_coins():
     nltk.download('vader_lexicon')
@@ -23,7 +26,9 @@ def test_analyze_multiple_coins():
     full_text = headline + post_text
     result = sa.identify_coins(full_text)
     assert len(result) == 4
-    assert set(result) == set(['bitcoin', 'ethereum', 'dogecoin', 'shibainucoin'])
+    assert set(result) == (set(['bitcoin', 'ethereum',
+                                'dogecoin', 'shibainucoin']))
+
 
 def testAnalyzePost():
     nltk.download('vader_lexicon')

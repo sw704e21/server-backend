@@ -32,7 +32,6 @@ class SentimentAnalyzer:
         return coin_names
 
     def run_analysis(self, full_text, data, coins):
-        
         # Analyzes a post, and saves the result in a result variable
         score = self.analyze_posts(full_text)
 
@@ -43,15 +42,15 @@ class SentimentAnalyzer:
             'interaction': int(data['score']) + int(data['num_comments']),
             'url': data['permalink']
         }
-
-        #self.send_data(result)
+        self.send_data(result)
 
     def identify_coins(self, text):
         associated_coins = []
         all_coins = self.get_all_coins()
         for coin in all_coins:
-            if coin[0].casefold() in text.casefold() or coin[1].casefold() in text.casefold():
-                    associated_coins.append(coin[0])
+            if (coin[0].casefold() in text.casefold()
+                    or coin[1].casefold() in text.casefold()):
+                associated_coins.append(coin[0])
         return associated_coins
 
     def main_logic(self):
@@ -64,4 +63,3 @@ class SentimentAnalyzer:
         full_text = headline + post_text
         associated_coins = self.identify_coins(full_text)
         self.run_analysis(full_text, data, associated_coins)
-        
