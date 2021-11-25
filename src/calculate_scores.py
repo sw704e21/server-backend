@@ -1,10 +1,5 @@
 from scipy import stats
-
-
-def normalizeOld(values, bounds):
-    return [bounds['desired']['lower'] + (x - bounds['actual']['lower']) * (
-            bounds['desired']['upper'] - bounds['desired']['lower']) / (
-                    bounds['actual']['upper'] - bounds['actual']['lower']) for x in values]
+import requests
 
 
 def normalize_multi(values, actual_bounds, desired_bounds):
@@ -17,74 +12,110 @@ def normalize_multi(values, actual_bounds, desired_bounds):
         return [desired_bounds[0]]
 
 
-def normalize(x, max_bound, min_bound):
-    return (x - min_bound(x)) / (max_bound(x) - min_bound(x))
-
-
-class TestData:
-
-    def __init__(self):
-        self.price_list1 = [61235, 61256, 59123, 62530, 62394, 61239, 62349, 63249, 61005, 59120, 58210, 59123, 61235,
-                            61256, 59123, 62530, 62394, 61239, 62349, 63249, 61005, 59120, 58210, 59123]
-
-        self.social_list = [1167/11, 317/2, 985/5, 1307/13, 435/7, 2483/17, 1108/10, 92/2, 493/3, 519/3, 833/6, 548/9,
-                            519/11, 1638/15, 19/1, 11/2, 14/4, 19/5, 22/3, 28/2, 4/1, 12/5, 15/6, 3/2]
-
-        self.sentiment_list = [0.7, 0.6, 0.9, 0.5, 0.7, 0.7, 0.6, 0.2, -0.1, 0.5, 0.9, 0.8, 0.7, 0.6,
-                                0.9, 0.5, 0.7, 0.7, 0.6, 0.2, -0.1, 0.5, 0.9, 0.8]
-
-        self.test_list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-
-
 class ScoreCalculator:
-    test_data = TestData()
+
     def __init__(self):
-        api_url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
+        self.api_url = 'http://cryptoserver.northeurope.cloudapp.azure.com/'
+        self.coins_id = self.get_coin_id()
 
-    def price_score(self):
-        price_list1 = self.test_data.price_list1
-        dayone_average = sum(price_list1)/len(price_list1)
-        daytwo_average_normalized = normalize_multi([price_list1[0]], (dayone_average * 0.95, dayone_average * 1.05), (0, 5))
-        print("price score between 0-5: ", daytwo_average_normalized[0], "\n")
 
-    def social_score(self):
-        social_list = self.test_data.social_list
+    def price_score(self, price_list):
+        daily_average = sum(price_list)/len(price_list)
+        price_score = normalize_multi([price_list[0]], (daily_average * 0.95, daily_average * 1.05), (0, 5))
+        print("Daily average: {:.1f}".format(daily_average), " and past hour average: {:.1f}".format(price_list[0]))
+        print("price score between 0-5: ", "{:.1f}".format(price_score[0]), "\n")
+        return float(price_score[0])
+
+    def social_score(self, social_list):
         average_socialscore = sum(social_list)/len(social_list)
-        print("Social score between 0-5: ", sum(normalize_multi(social_list, (0, 100), (0, 5)))/len(social_list), "\n")
+        social_score = normalize_multi([average_socialscore], (0, 50), (0, 5))
+        print("Average social score: ", "{:.1f}".format(average_socialscore))
+        print("Social score between 0-5: ", "{:.1f}".format(social_score[0]), "\n")
+        return float(social_score[0])
 
-    def social_score_average(self, social_list):
+    def sentiment_score(self, sentiment_average):
+       # sentiment_average = sum(sentiment_list)/len(sentiment_list)
+        sentiment_score = normalize_multi(
+            [sentiment_average], (-1, 0.8), (0, 5))
+        print("Sentiment average: ", "{:.1f}".format(float(sentiment_average)))
+        print("Sentiment score between 0-5:  ", "{:.1f}".format(float(sentiment_score[0])), "\n")
+        return float(sentiment_score[0])
 
-       return sum(social_list)/len(social_list)
-    def sentiment_score(self):
+    def correlation_score(self, price_list, social_list, sentiment_list):
 
-        print()
+        socialandprice_normalized_rank = normalize_multi(stats.spearmanr(price_list, social_list), (-1, 0.8), (0, 5))
+        sentimentandprice_normalized_rank = normalize_multi(stats.spearmanr(price_list, sentiment_list), (-1, 0.8), (0, 5))
+        print("Social and Price correlation rank between 0 - 5: ", "{:.1f}".format(socialandprice_normalized_rank[0]), "\n",
+              "Sentiment and Price correlation rank between 0 - 5: ", "{:.1f}".format(sentimentandprice_normalized_rank[0]))
+        print("Average of correlation ranks: ", "{:.1f}".format(((socialandprice_normalized_rank[0] + sentimentandprice_normalized_rank[0]) / 2)), "\n")
+        return float((socialandprice_normalized_rank[0] + sentimentandprice_normalized_rank[0]) / 2)
 
-    def correlation_score(self):
-        price_list = self.test_data.price_list
-        social_list = self.test_data.social_list
-        sentiment_list = self.test_data.sentiment_list
-        test_list = self.test_data.social_list
-        #print(stats.spearmanr(self.test_data.price_list, self.test_data.social_list))
-        #print(stats.spearmanr(self.test_data.test_list, self.test_data.test_list))
+    def final_score(self, price_score, social_score, sentiment_score, correlation_score):
+        score_sum = round(price_score) + round(social_score) + round(sentiment_score) + round(correlation_score)
+        print("cryptopinion score TM: ", int(score_sum * (score_sum/4)))
+        return int(score_sum * (score_sum/4))
 
-        socialandprice_normalized_rank = normalizeOld(stats.spearmanr(price_list, social_list),
-                        {'actual': {'lower': -1, 'upper': 1}, 'desired': {'lower': 0, 'upper': 5}})
-        sentimentandprice_normalized_rank = normalizeOld(stats.spearmanr(price_list, sentiment_list),
-                        {'actual': {'lower': -1, 'upper': 1}, 'desired': {'lower': 0, 'upper': 5}})
-        test_normalized_rank = normalizeOld(stats.spearmanr(test_list, test_list),
-                  {'actual': {'lower': -1, 'upper': 1}, 'desired': {'lower': 0, 'upper': 5}})
-        print("Social and Price correlation rank between 0 - 5: ", socialandprice_normalized_rank[0], "\n",
-              "Sentiment and Price correlation rank between 0 - 5: ", sentimentandprice_normalized_rank[0], "\n")
-        print("Average of correlation ranks: ", ((socialandprice_normalized_rank[0] + sentimentandprice_normalized_rank[0]) / 2))
+    def handle_scores(self):
 
-    def final_score(self):
-        print()
+        for i in range(len(self.coins_id)):
+            price_list = self.get_scoredata("price", self.coins_id[i])
+            mentions_list = self.get_scoredata("mentions", self.coins_id[i])
+            interactions_list = self.get_scoredata("interactions", self.coins_id[i])
+            social_list = self.social_calculation(mentions_list, interactions_list)
+            sentiment_list = self.get_scoredata("sentiment", self.coins_id[i])['list']
+            sentiment_average = self.get_scoredata("sentiment", self.coins_id[i])['24hours']
+
+            price_score = self.price_score(price_list)
+            social_score = self.social_score(social_list)
+            sentiment_score = self.sentiment_score(sentiment_average)
+            correlation_score = self.correlation_score(price_list, social_list, sentiment_list)
+
+            dict = {"identifier": self.get_coin_id()[i],
+                    "price score": "{:.1f}".format(price_score),
+                    "social score": "{:.1f}".format(social_score),
+                    "average sentiment": "{:.1f}".format(sentiment_score),
+                    "correlation rank": "{:.1f}".format(correlation_score),
+                    "final score": self.final_score(price_score, social_score, sentiment_score, correlation_score)}
+            print("Score dictionary: ", dict)
+
+    def get_coin_id(self):
+        r = requests.get(self.api_url + "track")
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            print(e)
+        data = r.json()
+        list = []
+        for x in data:
+            list.append(x['identifier'])
+        return list
+
+    def get_scoredata(self, scoretype, id):
+        r = requests.get(self.api_url + f"score/{scoretype}/{id}")
+        return r.json()
+
+    def post_scoredata(self, data):
+        r = requests.post(self.api_url + "", data=data)
+
+        # Exception handling
+        try:
+            r.raise_for_status()
+            print(r)
+        except requests.exceptions.HTTPError as e:
+            print(e)
+
+    def social_calculation(self, mentions, interactions):
+        social_list = []
+        for i in range(len(mentions)):
+            if interactions[i] != 0:
+                social_list.append(interactions[i]/mentions[i])
+            else:
+                social_list.append(0)
+        return social_list
 
 if __name__ == '__main__':
     score = ScoreCalculator()
-    score.price_score()
-    # score.social_score()
-    # score.correlation_score()
+    score.handle_scores()
 
 
 
