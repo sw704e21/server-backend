@@ -4,10 +4,12 @@ import pickle
 import time
 import multiprocessing
 from SentimentAnalyzer import SentimentAnalyzer
+import logging
+logger = logging.getLogger("backend")
 
 
 class QueueServer:
-    def __init__(self, host='127.0.0.1', port=65432):
+    def __init__(self, host='0.0.0.0', port=65432):
         self.host = host
         self.port = port
         self.queue = multiprocessing.Queue()
@@ -49,7 +51,7 @@ class QueueServer:
         return b''.join(total_data)
 
     def run(self):
-        print(f'Now listening on {self.host}:{self.port}')
+        logger.info(f'QueueServer now listening on {self.host}:{self.port}')
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind((self.host, self.port))
 
@@ -57,14 +59,16 @@ class QueueServer:
                 s.listen()
                 conn, addr = s.accept()
                 with conn:
-                    print('Connected by', addr)
+                    logger.debug(f'Connected by {addr}')
                     data = self._recv_timeout(conn)
-                    print(data)
+                    logger.debug(f"Received {len(data)}")
                     if not data:
                         conn.sendall(pickle.dumps('Error receiving data'))
+                        logger.error("Error receiving data")
                         break
                     if pickle.loads(bytes(data)) == 'terminate':
                         conn.sendall(pickle.dumps('Terminating server'))
+                        logger.debug("Terminating server")
                         sys.exit()
                     self.queue.put(pickle.loads(data))
                     conn.sendall(pickle.dumps('Data put into queue'))
@@ -72,6 +76,6 @@ class QueueServer:
     def dequeue(self):
         # Takes item from queue and hands it to sentiments analyzer, called by processes from main
         data = self.queue.get()
-        print(f'Now processing {data}')
+        logger.debug(f'Now processing {data}')
         analyzer = SentimentAnalyzer(data)
         analyzer.main_logic()
