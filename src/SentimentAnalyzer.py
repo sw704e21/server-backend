@@ -4,8 +4,9 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
 import datetime
-import nltk
 import os
+import logging
+logger = logging.getLogger("backend")
 
 
 class SentimentAnalyzer:
@@ -27,8 +28,6 @@ class SentimentAnalyzer:
         pickle.dump(dic, a_file)
         a_file.close()
 
-        nltk.download('vader_lexicon')
-
     def analyze_posts(self, text):
         sia = SIA()
 
@@ -38,7 +37,7 @@ class SentimentAnalyzer:
 
     def send_data(self, result):
         # Sender result til databasen
-        print(f'Now sending {result}')
+        logger.info(f'Now sending {result["url"]}')
         requests.post(self.url + "/coins", result)
 
     def main_logic(self):
@@ -123,7 +122,7 @@ class SentimentAnalyzer:
         self.add_to_delete_dictionary(url, timestamp, coin)
 
         # Opdaterer worddictionary
-        print(dictionary)
+        logger.info("Updated dictionary")
         a_file = open("worddictionary%s.pkl" % coin, "wb")
         pickle.dump(dictionary, a_file)
         a_file.close()
@@ -216,7 +215,7 @@ class SentimentAnalyzer:
         while True:
             # Establish connection with client.
             c, addr = s.accept()
-            print('Got connection from', addr)
+            logger.info('Got connection from', addr)
             coin = s.recv(1024).decode('ascii')
 
             # send a thank you message to the client. encoding to send byte type.
