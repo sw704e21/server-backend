@@ -1,4 +1,3 @@
-from genericpath import exists
 import json
 import os
 import spacy
@@ -6,22 +5,18 @@ import random
 from spacy.language import Language
 from spacy.training import Example
 from spacy.util import minibatch
+import DataPrepper
 
 
 class EntityExtractor:
 
     def __init__(self):
+        # Load an existing model if it exists
         self.file_path = os.path.dirname(os.path.realpath(__file__))
         if os.path.isdir(self.file_path + "\\Model"):
             self.nlp = Language().from_disk(self.file_path + "\\Model")
         with open(self.file_path + "\\data.json", 'r') as j:
             self.data = json.loads(j.read())
-            self.data.append( ("Im 23 Im from Brazil and I have 30k dollars on my bank account" +
-     "Im thinking about invest 20 of it about to 6k dollars on bitcoin I" +
-     "hope it can reach 200k dollars or more 1kk dol in future",
-     {"entities": [(120, 128, 'crypto')]}))
-        self.data.append(("Why bitcoin Gambling Is The Future ethereum Of Online Casinos",
-     {"entities": [(4, 11, 'crypto')]}))
 
     def train(self, iterations, training_data):
 
@@ -54,12 +49,13 @@ class EntityExtractor:
         return nlp
 
     def predict(self, text):
-        if os.path.isdir(self.file_path + "\\Model"):
-            self.nlp = spacy.load(self.file_path + "\\Model")
-            doc = self.nlp(text)
-            return doc.ents
-        else:
-            print("No model folder present")
+        if self.nlp is None:
+            if os.path.isdir(self.file_path + "\\Model"):
+                self.nlp = spacy.load(self.file_path + "\\Model")
+            else:
+                print("No model folder present")
+        doc = self.nlp(DataPrepper.stem_post(text))
+        return doc.ents
 
 
 ent = EntityExtractor()
