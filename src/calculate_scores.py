@@ -37,7 +37,6 @@ class ScoreCalculator:
 
         sentiment_score = normalize_multi(
             [sentiment_average], (-0.1, 0.35), (0, 5))
-        print("sentiment average: ", sentiment_average)
         return float(sentiment_score[0])
 
     def correlation_score(self, price_list, social_list, sentiment_list):
