@@ -5,6 +5,7 @@ import schedule
 import logging
 logger = logging.getLogger("backend")
 
+
 def normalize_multi(values, actual_bounds, desired_bounds):
     if actual_bounds[0] <= values[0] <= actual_bounds[1]:
         return [desired_bounds[0] + (x - actual_bounds[0]) * (desired_bounds[1] - desired_bounds[0]) / (
