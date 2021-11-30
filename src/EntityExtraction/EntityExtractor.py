@@ -6,6 +6,9 @@ from spacy.language import Language
 from spacy.training import Example
 from spacy.util import minibatch
 import DataPrepper
+import pickle
+import warnings
+warnings.filterwarnings("error")
 
 
 class EntityExtractor:
@@ -15,8 +18,8 @@ class EntityExtractor:
         self.file_path = os.path.dirname(os.path.realpath(__file__))
         if os.path.isdir(self.file_path + "\\Model"):
             self.nlp = Language().from_disk(self.file_path + "\\Model")
-        with open(self.file_path + "\\data.json", 'r') as j:
-            self.data = json.loads(j.read())
+        with open(self.file_path + "\\annotated.pickle", 'rb') as j:
+            self.data = pickle.load(j)
 
     def train(self, iterations, training_data):
 
@@ -26,7 +29,7 @@ class EntityExtractor:
         nlp.add_pipe("ner", name="crypto_ner")
         print("Added pipes")
 
-        nlp.begin_training()
+        nlp.initialize()
         print("Begun training")
         k = 0
         for itn in range(iterations):
@@ -36,8 +39,13 @@ class EntityExtractor:
             examples = []
             for text, annots in training_data:
                 examples.append(Example.from_dict(nlp.make_doc(text), annots))
+                with open(("D:/Uni-ting/7 semester/Projekt/" +
+                           "server-backend/src/EntityExtraction" +
+                           "/test.json"), 'w') as j:
+                    json.dumps(text)
+                    json.dumps(annots)
             nlp.initialize(lambda: examples)
-            for i in range(3):
+            for i in range(5):
                 print("Iteration: " + str(i))
                 random.shuffle(examples)
                 j = 0
@@ -59,6 +67,6 @@ class EntityExtractor:
 
 
 ent = EntityExtractor()
-ent.train(5, ent.data)
+ent.train(10, ent.data)
 doc = ent.predict("why ethereum gambling is the future of online casinos")
 print(doc[0].text, doc[0].label_)
