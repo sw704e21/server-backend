@@ -22,37 +22,27 @@ class ScoreCalculator:
     def price_score(self, price_list):
         daily_average = sum(price_list)/len(price_list)
         price_score = normalize_multi([price_list[0]], (daily_average * 0.95, daily_average * 1.05), (0, 5))
-        print("Daily average: {:.1f}".format(daily_average), " and past hour average: {:.1f}".format(price_list[0]))
-        print("price score between 0-5: ", "{:.1f}".format(price_score[0]), "\n")
         return float(price_score[0])
 
     def social_score(self, social_list):
         average_socialscore = sum(social_list)/len(social_list)
         social_score = normalize_multi([average_socialscore], (0, 50), (0, 5))
-        print("Average social score: ", "{:.1f}".format(average_socialscore))
-        print("Social score between 0-5: ", "{:.1f}".format(social_score[0]), "\n")
         return float(social_score[0])
 
     def sentiment_score(self, sentiment_average):
        # sentiment_average = sum(sentiment_list)/len(sentiment_list)
         sentiment_score = normalize_multi(
             [sentiment_average], (-1, 0.8), (0, 5))
-        print("Sentiment average: ", "{:.1f}".format(float(sentiment_average)))
-        print("Sentiment score between 0-5:  ", "{:.1f}".format(float(sentiment_score[0])), "\n")
         return float(sentiment_score[0])
 
     def correlation_score(self, price_list, social_list, sentiment_list):
 
         socialandprice_normalized_rank = normalize_multi(stats.spearmanr(price_list, social_list), (-1, 0.8), (0, 5))
         sentimentandprice_normalized_rank = normalize_multi(stats.spearmanr(price_list, sentiment_list), (-1, 0.8), (0, 5))
-        print("Social and Price correlation rank between 0 - 5: ", "{:.1f}".format(socialandprice_normalized_rank[0]), "\n",
-              "Sentiment and Price correlation rank between 0 - 5: ", "{:.1f}".format(sentimentandprice_normalized_rank[0]))
-        print("Average of correlation ranks: ", "{:.1f}".format(((socialandprice_normalized_rank[0] + sentimentandprice_normalized_rank[0]) / 2)), "\n")
         return float((socialandprice_normalized_rank[0] + sentimentandprice_normalized_rank[0]) / 2)
 
     def final_score(self, price_score, social_score, sentiment_score, correlation_score):
         score_sum = round(price_score) + round(social_score) + round(sentiment_score) + round(correlation_score)
-        print("cryptopinion score TM: ", int(score_sum * (score_sum/4)))
         return int(score_sum * (score_sum/4))
 
     def handle_scores(self):
@@ -71,12 +61,13 @@ class ScoreCalculator:
             correlation_score = self.correlation_score(price_list, social_list, sentiment_list)
 
             dict = {"identifier": self.get_coin_id()[i],
-                    "price score": "{:.1f}".format(price_score),
-                    "social score": "{:.1f}".format(social_score),
-                    "average sentiment": "{:.1f}".format(sentiment_score),
-                    "correlation rank": "{:.1f}".format(correlation_score),
-                    "final score": self.final_score(price_score, social_score, sentiment_score, correlation_score)}
+                    "price_score": "{:.1f}".format(price_score),
+                    "social_score": "{:.1f}".format(social_score),
+                    "average_sentiment": "{:.1f}".format(sentiment_score),
+                    "correlation_rank": "{:.1f}".format(correlation_score),
+                    "final_score": self.final_score(price_score, social_score, sentiment_score, correlation_score)}
             print("Score dictionary: ", dict)
+            self.post_scoredata(dict)
 
     def get_coin_id(self):
         r = requests.get(self.api_url + "track")
@@ -95,7 +86,7 @@ class ScoreCalculator:
         return r.json()
 
     def post_scoredata(self, data):
-        r = requests.post(self.api_url + "", data=data)
+        r = requests.post(self.api_url + "score", data=data)
 
         # Exception handling
         try:
@@ -116,7 +107,3 @@ class ScoreCalculator:
 if __name__ == '__main__':
     score = ScoreCalculator()
     score.handle_scores()
-
-
-
-
