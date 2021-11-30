@@ -1,5 +1,6 @@
 from processingqueue.queueserver import QueueServer
 from multiprocessing import Process
+from calculate_scores import ScoreCalculator
 import time
 import logging
 import datetime
@@ -38,7 +39,10 @@ def start_dequeue_process(server):
 
 if __name__ == '__main__':
     server = QueueServer()
+    score_calc = ScoreCalculator()
     server_process = Process(target=server.run)
     thread_process = Process(target=manage_processes, args=(server, 10))
+    score_calc_process = Process(target=score_calc.score_schedule)
     server_process.start()
     thread_process.start()
+    score_calc_process.start()
