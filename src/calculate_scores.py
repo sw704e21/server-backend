@@ -18,7 +18,6 @@ class ScoreCalculator:
         self.api_url = 'http://cryptoserver.northeurope.cloudapp.azure.com/'
         self.coins_id = self.get_coin_id()
 
-
     def price_score(self, price_list):
         daily_average = sum(price_list)/len(price_list)
         price_score = normalize_multi([price_list[0]], (daily_average * 0.95, daily_average * 1.05), (0, 5))
@@ -30,15 +29,15 @@ class ScoreCalculator:
         return float(social_score[0])
 
     def sentiment_score(self, sentiment_average):
-       # sentiment_average = sum(sentiment_list)/len(sentiment_list)
         sentiment_score = normalize_multi(
             [sentiment_average], (-1, 0.8), (0, 5))
         return float(sentiment_score[0])
 
     def correlation_score(self, price_list, social_list, sentiment_list):
-
-        socialandprice_normalized_rank = normalize_multi(stats.spearmanr(price_list, social_list), (-1, 0.8), (0, 5))
-        sentimentandprice_normalized_rank = normalize_multi(stats.spearmanr(price_list, sentiment_list), (-1, 0.8), (0, 5))
+        socialandprice_normalized_rank = \
+            normalize_multi(stats.spearmanr(price_list, social_list), (-1, 0.8), (0, 5))
+        sentimentandprice_normalized_rank = \
+            normalize_multi(stats.spearmanr(price_list, sentiment_list), (-1, 0.8), (0, 5))
         return float((socialandprice_normalized_rank[0] + sentimentandprice_normalized_rank[0]) / 2)
 
     def final_score(self, price_score, social_score, sentiment_score, correlation_score):
@@ -103,6 +102,7 @@ class ScoreCalculator:
             else:
                 social_list.append(0)
         return social_list
+
 
 if __name__ == '__main__':
     score = ScoreCalculator()
