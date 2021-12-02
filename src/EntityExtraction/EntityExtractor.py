@@ -5,7 +5,6 @@ import random
 from spacy.language import Language
 from spacy.training import Example
 from spacy.util import minibatch
-import DataPrepper
 import pickle
 import warnings
 warnings.filterwarnings("error")
@@ -17,12 +16,12 @@ class EntityExtractor:
         # Load an existing model if it exists
         self.file_path = os.path.dirname(os.path.realpath(__file__))
         if os.path.isdir(self.file_path + "\\Model"):
-            self.nlp = Language().from_disk(self.file_path + "\\Model")
-        with open(self.file_path + "\\annotated.pickle", 'rb') as j:
+            self.nlp = Language().from_disk("D:\\Uni-ting\\7 semester\\Projekt\\server-backend\\src\\EntityExtraction\\SpacyNER\\ner_demo\\training\\model-best")
+        with open(self.file_path + "\\annotated_data.pickle", 'rb') as j:
             self.data = pickle.load(j)
+        self.ner = spacy.load("D:\\Uni-ting\\7 semester\\Projekt\\server-backend\\src\\EntityExtraction\\SpacyNER\\ner_demo\\training\\model-best")
 
     def train(self, iterations, training_data):
-
         nlp = spacy.blank("en")
         ner = nlp.add_pipe("ner")
         ner.add_label("crypto")
@@ -49,7 +48,7 @@ class EntityExtractor:
                 print("Iteration: " + str(i))
                 random.shuffle(examples)
                 j = 0
-                for batch in minibatch(examples, size=8):
+                for batch in minibatch(examples, size=32):
                     j += 1
                     print("batch iteration: " + str(j))
                     nlp.update(batch)
@@ -62,11 +61,17 @@ class EntityExtractor:
                 self.nlp = spacy.load(self.file_path + "\\Model")
             else:
                 print("No model folder present")
-        doc = self.nlp(DataPrepper.stem_post(text))
+        doc = self.nlp(text)
         return doc.ents
 
 
 ent = EntityExtractor()
-ent.train(10, ent.data)
-doc = ent.predict("why ethereum gambling is the future of online casinos")
-print(doc[0].text, doc[0].label_)
+# ent.train(10, ent.data)
+json_file_path = ent.file_path + "\\stemmed_data.json"
+
+matches = 0
+doc = ent.ner("I like ethereum and bitcoin however i think algorand has" +
+              "a better identifier")
+print("Cryptos in: " + doc.text)
+for ent in doc.ents:
+    print(ent.text)

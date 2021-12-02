@@ -10,7 +10,21 @@ import pickle
 test_coins = (["bitcoin", "bitcoins", "btc", "eth", "doge", "ethereum",
               "dogecoin", "dogecoins", "binance coin", "bnb", "tether", "usdt",
                "sol", "cardano", "ada", "xrp", "polkadot", "dot",
-               "solana", "usd coin", "usdc", "avalanche", "avax"])
+               "solana", "usd coin", "usdc", "avalanche", "avax", "shiba inu",
+               "shib", "dogelon mars", "dogelon", "algorand", "axie infinity",
+               "axs", "terra", "luna", "uniswap", "uni", "cosmos", "atom",
+               "vechain", "vet", "litecoin", "ltc", "stellar", "xlm",
+               "internet computer", "icp", "polkadot", "tron", "trx",
+               "avalanche", "avax"])
+
+
+subreddits = (["cardano", "terraluna", "Stellar", "Tronix", "litecoin",
+               "ICPTrader", "UniSwap", "cosmosnetwork", "VeChain",
+               "Ripple", "Avax", "dogelon", "algorand", "AxieInfinity",
+               "dogelon" "Shibainucoin", "USDC", "polkadot",
+               "cryptocurrency", "bitcoin", "ethereum", "dogecoin",
+               "satoshistreetbets", "altcoin", "binance", "Tether",
+               "solana"])
 
 
 # Prepares a sentence to work as part of the dataset for the sentiment analyzer
@@ -19,14 +33,13 @@ test_coins = (["bitcoin", "bitcoins", "btc", "eth", "doge", "ethereum",
 # Returns None if no entities from list_of_words can be found in text
 def annotate_text(text, list_of_words, annotation):
     entity_list = []
-    new_text = text
     for word in list_of_words:
-        for entry in re.finditer(" " + word + " ", new_text):
+        for entry in re.finditer(" " + word + " ", text):
             tuple = ((entry.start() + 1), (entry.end() - 1), annotation)
             entity_list.append(tuple)
     dict = {"entities": entity_list}
     if entity_list:
-        return (new_text, dict)
+        return (text, dict)
 
 
 # Download from reddit/all, find posts containing any word from test_coins
@@ -39,11 +52,20 @@ def reddit_download_all():
         user_agent="Savings-Stop3619",
     )
     for coin in test_coins:
-        for submission in reddit.subreddit("all").search(coin, limit=1000):
+        for submission in reddit.subreddit("all").search(coin, limit=2000):
             # Make sure the text or title specifically mentions the coin
             if any((ext in submission.selftext for ext in test_coins) or
-               any(ext in submission.title for ext in test_coins)):
+                    any(ext in submission.title for ext in test_coins)):
                 post_list.append(submission.title + submission.selftext)
+    for submission in reddit.subreddit("all").search("crypto", limit=2000):
+        if any((ext in submission.selftext for ext in test_coins) or
+                any(ext in submission.title for ext in test_coins)):
+            post_list.append(submission.title + submission.selftext)
+    for submission in (reddit.subreddit("all").
+                       search("cryptocurrency", limit=2000)):
+        if any((ext in submission.selftext for ext in test_coins) or
+               any(ext in submission.title for ext in test_coins)):
+            post_list.append(submission.title + submission.selftext)
     return post_list
 
 
@@ -57,6 +79,10 @@ def download_subreddit_posts(subreddit, lim):
         user_agent="Savings-Stop3619",
     )
     for submission in reddit.subreddit(subreddit).hot(limit=lim):
+        post_list.append(submission.selftext.lower())
+    for submission in reddit.subreddit(subreddit).new(limit=lim):
+        post_list.append(submission.selftext.lower())
+    for submission in reddit.subreddit(subreddit).top(limit=lim):
         post_list.append(submission.selftext.lower())
     return post_list
 
@@ -76,7 +102,9 @@ def stem_post(text):
     new_text = new_text.decode()
     # Removes all symbols from string
     new_text = re.sub(r'[^\w]', ' ', new_text)
-    # Remove double space caused by line before
+    # Put space before and after text to help annotation
+    new_text = " " + new_text + " "
+    # Remove double space caused by any of previous lines
     new_text = " ".join(new_text.split())
     return new_text.lower()
 
@@ -94,50 +122,83 @@ def download_twitter_posts(hashtag_list, lim):
         for tweet in (tweepy.Cursor(api.search_tweets,
                       q=("#" + crypto), lang='en').items(lim)):
             tweet_list.append(tweet.text.lower())
+    for tweet in (tweepy.Cursor(api.search_tweets,
+                                q=("#crypto"), lang='en').items(lim)):
+        tweet_list.append(tweet.text.lower())
+    for tweet in (tweepy.Cursor(api.search_tweets,
+                                q=("#cryptocurrency"), lang='en').items(lim)):
+        tweet_list.append(tweet.text.lower())
+    for tweet in (tweepy.Cursor(api.search_tweets,
+                                q=("#altcoin"), lang='en').items(lim)):
+        tweet_list.append(tweet.text.lower())
+    for tweet in (tweepy.Cursor(api.search_tweets,
+                                q=("#shitcoin"), lang='en').items(lim)):
+        tweet_list.append(tweet.text.lower())
+    for tweet in (tweepy.Cursor(api.search_tweets,
+                                q=("#memecoin"), lang='en').items(lim)):
+        tweet_list.append(tweet.text.lower())
+    for tweet in (tweepy.Cursor(api.search_tweets,
+                                q=("#coinbase"), lang='en').items(lim)):
+        tweet_list.append(tweet.text.lower())
+    for tweet in (tweepy.Cursor(api.search_tweets,
+                                q=("#cryptomining"), lang='en').items(lim)):
+        tweet_list.append(tweet.text.lower())
+
     return tweet_list
 
-def download_multiple_supreddits():
+
+# Runs download_subreddit_posts on multiple relevant subreddits
+def download_multiple_supreddits(subreddit_list, lim):
     dataset = []
-    for entry in download_subreddit_posts("cryptocurrency", 1000):
-        # Checks if any of the words in test_coins is used in the text
-        if any(ext in entry for ext in test_coins):
-            dataset.append(entry)
-    for entry in download_subreddit_posts("bitcoin", 1000):
-        if any(ext in entry for ext in test_coins):
-            dataset.append(entry)
-    for entry in download_subreddit_posts("ethereum", 1000):
-        if any(ext in entry for ext in test_coins):
-            dataset.append(entry)
-    for entry in download_subreddit_posts("dogecoin", 1000):
-        if any(ext in entry for ext in test_coins):
-            dataset.append(entry)
-    for entry in download_subreddit_posts("satoshistreetbets", 1000):
-        if any(ext in entry for ext in test_coins):
-            dataset.append(entry)
-    for entry in download_subreddit_posts("altcoin", 1000):
-        if any(ext in entry for ext in test_coins):
-            dataset.append(entry)
+    for reddit in subreddit_list:
+        for entry in download_subreddit_posts(reddit, lim):
+            if any(ext in entry for ext in test_coins):
+                dataset.append(entry)
+    return dataset
+
+
+# Function for finding how many texts a coin has been mentioned in
+# in a list of sentences
+def find_amount_mentions(text_list):
+    datapath = os.path.dirname(os.path.realpath(__file__))
+    frequency_dict = {}
+    for coin in test_coins:
+        for text in text_list:
+            if coin in text:
+                if coin in frequency_dict:
+                    frequency_dict[coin] = frequency_dict[coin] + 1
+                else:
+                    frequency_dict[coin] = 1
+    with open(datapath + "\\coinfrequency.json", 'w') as f:
+        json.dump(frequency_dict, f)
+    return frequency_dict
 
 
 def scrape_and_list():
     datapath = os.path.dirname(os.path.realpath(__file__))
     dataset = []
-    dataset = download_multiple_supreddits()
-    dataset.extend(reddit_download_all())
-    dataset.extend(download_twitter_posts(test_coins, 100))
-    with open(datapath + "dataset.json", 'w') as f:
-        json.dump(dataset, f)
-    print('Stemming')
-    stemmed_data = stem_dataset(dataset)
-    with open(datapath + "stemmed_data.json", 'w') as f:
-        json.dump(stemmed_data, f)
+    if not (os.path.exists(datapath + "\\dataset.json")):
+        dataset = download_multiple_supreddits(subreddits, 2000)
+        dataset.extend(reddit_download_all())
+        dataset.extend(download_twitter_posts(test_coins, 1200))
+        with open(datapath + "\\dataset.json", 'w') as f:
+            json.dump(dataset, f)
+    else:
+        with open(datapath + "\\dataset.json", 'r') as f:
+            dataset = json.loads(f.read())
+    if (os.path.exists(datapath + "\\stemmed_data.json")):
+        with open(datapath + "\\stemmed_data.json", 'r') as f:
+            stemmed_data = json.loads(f.read())
+    else:
+        print('Stemming')
+        stemmed_data = stem_dataset(list(dict.fromkeys(dataset)))
+        with open(datapath + "\\stemmed_data.json", 'w') as f:
+            json.dump(stemmed_data, f)
     print('Annotating')
-    # Uses list(dict) to remove duplicates as scraping multiple subreddits
-    # may give the same post multiple times
     annotated_dataset = annotate_dataset(stemmed_data)
     print(len(annotated_dataset))
-    with open(datapath, 'w') as f:
-        json.dump(annotated_dataset, f)
+    with open(datapath + "\\annotated_data.pickle", 'wb') as f:
+        pickle.dump(annotated_dataset, f)
 
 
 # Function for calling stem_post on a list of posts
@@ -155,6 +216,7 @@ def stem_dataset(data):
 # Function for annotating a full dataset
 # Takes a list of strings to be annotated
 def annotate_dataset(data):
+    print(len(data))
     annotated_set = []
     for entry in data:
         annotation = annotate_text(entry.lower(), test_coins, 'crypto')
@@ -163,16 +225,4 @@ def annotate_dataset(data):
     return annotated_set
 
 
-with open(("D:/Uni-ting/7 semester/Projekt/" +
-           "server-backend/src/EntityExtraction/stemmed.json"), 'r') as j:
-    dat = json.loads(j.read())
-    no_dupes = list(set(dat))
-    set = annotate_dataset(list(set(no_dupes)))
-    with open("D:/Uni-ting/7 semester/Projekt/" +
-              "server-backend/src/EntityExtraction/" +
-              "annotated.pickle", 'wb') as f:
-        pickle.dump(set, f)
-with open(("D:/Uni-ting/7 semester/Projekt/" +
-           "server-backend/src/EntityExtraction/annotated.pickle"), 'rb') as j:
-    d = pickle.load(j)
-    print(len(d))
+scrape_and_list()
