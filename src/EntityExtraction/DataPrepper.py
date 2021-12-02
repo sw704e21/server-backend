@@ -21,7 +21,7 @@ test_coins = (["bitcoin", "bitcoins", "btc", "eth", "doge", "ethereum",
 subreddits = (["cardano", "terraluna", "Stellar", "Tronix", "litecoin",
                "ICPTrader", "UniSwap", "cosmosnetwork", "VeChain",
                "Ripple", "Avax", "dogelon", "algorand", "AxieInfinity",
-               "dogelon" "Shibainucoin", "USDC", "polkadot",
+               "dogelon", "Shibainucoin", "USDC", "polkadot",
                "cryptocurrency", "bitcoin", "ethereum", "dogecoin",
                "satoshistreetbets", "altcoin", "binance", "Tether",
                "solana"])
