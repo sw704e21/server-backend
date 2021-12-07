@@ -1,7 +1,6 @@
 import multiprocessing
 from SentimentAnalyzer import SentimentAnalyzer
 import kafka
-import pickle
 import logging
 logger = logging.getLogger("backend")
 
