@@ -62,7 +62,7 @@ class SentimentAnalyzer:
 
         result = {
             'timestamp': data['created_utc'],
-            'coin': data['source'],
+            'identifiers': self.extract_coin(full_text),
             'sentiment': score,
             'interaction': int(data['score']) + int(data['num_comments']),
             'url': data['permalink'],
@@ -194,6 +194,18 @@ class SentimentAnalyzer:
         a_file = open("worddictionary%s.pkl" % coin, "wb")
         pickle.dump(dictionary, a_file)
         a_file.close()
+
+    def extract_coin(self, text: str):
+        r = requests.get(self.url + "/track/tags")
+        tags = {}
+        for i in r.json():
+            tags[i['identifier']] = i['tags']
+        result = []
+        for key in tags.keys():
+            for tag in tags[key]:
+                if tag in text:
+                    result.append(key)
+        return result
 
     def test(self):
         testpost = {'title': 'Doge is speaking Tesla',
