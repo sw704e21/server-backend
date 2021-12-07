@@ -1,5 +1,4 @@
 import pickle
-import socket
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
@@ -57,14 +56,13 @@ class SentimentAnalyzer:
         url = data['permalink']
 
         # Updates the Word Dictionary
-        # coin = data['coin']
-        coin = 'btc'
+        coin = data['coin']
 
         self.manage_dictionary(url, timestamp, post_text, coin)
 
         result = {
             'timestamp': data['created_utc'],
-            'coin': data['source'],
+            'identifiers': self.extract_coin(full_text),
             'sentiment': score,
             'interaction': int(data['score']) + int(data['num_comments']),
             'url': data['permalink'],
@@ -127,6 +125,9 @@ class SentimentAnalyzer:
         a_file = open("worddictionary%s.pkl" % coin, "wb")
         pickle.dump(dictionary, a_file)
         a_file.close()
+        r = requests.post(self.url + "/data/tfdict/" + coin, dictionary)
+        r.raise_for_status()
+        logger.debug(f"Updated dictionary with status {r.status_code}")
 
     def add_to_delete_dictionary(self, url, timestamp, coin):
         # Åbner deletedictionary
@@ -194,38 +195,17 @@ class SentimentAnalyzer:
         pickle.dump(dictionary, a_file)
         a_file.close()
 
-    def socket_document(self):
-        # Here we made a socket instance and passed it two parameters.
-        # AF_INET refers to the address-family ipv4. The SOCK_STREAM means connection-oriented TCP protocol.
-        # Now we can connect to a server using this socket.3
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # reserve a port on your computer in our
-        # case it is 1337 but it can be anything
-        port = 1337
-
-        # Next bind to the port
-        # we have not typed any ip in the ip field
-        # instead we have inputted an empty string
-        # this makes the server listen to requests
-        # coming from other computers on the network
-        s.bind(('', port))
-
-        s.listen(5)
-
-        while True:
-            # Establish connection with client.
-            c, addr = s.accept()
-            logger.info('Got connection from', addr)
-            coin = s.recv(1024).decode('ascii')
-
-            # send a thank you message to the client. encoding to send byte type.
-            c.send('Thank you for connecting'.encode())
-            worddictionary = open('worddictionary%s.pkl' % coin, 'rb')  # open in binary
-
-            c.send(json.dumps(worddictionary))
-            # Close the connection with the client
-            c.close()
+    def extract_coin(self, text: str):
+        r = requests.get(self.url + "/track/tags")
+        tags = {}
+        for i in r.json():
+            tags[i['identifier']] = i['tags']
+        result = []
+        for key in tags.keys():
+            for tag in tags[key]:
+                if tag in text:
+                    result.append(key)
+        return result
 
     def test(self):
         testpost = {'title': 'Doge is speaking Tesla',
