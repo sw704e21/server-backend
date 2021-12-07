@@ -66,7 +66,9 @@ class SentimentAnalyzer:
             'sentiment': score,
             'interaction': int(data['score']) + int(data['num_comments']),
             'url': data['permalink'],
-            'influence': data['karma']
+            'influence': data['karma'],
+            'uuid': data['uuid'],
+            'source': data['source']
         }
 
         self.send_data(result)
