@@ -1,10 +1,13 @@
 import pickle
+
+from nltk import SnowballStemmer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
 import datetime
 import os
 import logging
+import re
 logger = logging.getLogger("backend")
 
 
@@ -84,14 +87,20 @@ class SentimentAnalyzer:
         # Fixing sentiment:
         dic = {}
         # Splitting the text into tokens, splitting them at each space symbols.
-        post_text = post_text.split()
+        # Removing symbols
+        post_text = re.sub(r'\'', '', post_text)
+        cleantext = re.sub(r'[^\w]', ' ', post_text)
+        no_special_characters = cleantext.split()
+        dstemmer = SnowballStemmer("english")
 
         # Laver et dictionary, som gemmer words og mapper det til total occurence
-        for word in post_text:
-            if word in dic:
-                dic[word] = dic[word] + 1
+        for word in no_special_characters:
+            # Stemming each word
+            tword = dstemmer.stem(word)
+            if tword in dic:
+                dic[tword] = dic[tword] + 1
             else:
-                dic[word] = 1
+                dic[tword] = 1
 
         # Loader dictionary med alle words
         a_file = open("worddictionary%s.pkl" % coin, "rb")
@@ -210,7 +219,7 @@ class SentimentAnalyzer:
         return result
 
     def test(self):
-        testpost = {'title': 'Doge is speaking Tesla',
+        testpost = {'title': '&Doge is¤ speaking $Tesla, isn\'t',
                     'full_link': 'https://www.reddit.com/r/dogecoin/comments/qv7ia3/doge_is_speaking_tesla/',
                     'score': 1, 'created_utc': 1637068420, 'selftext': '', 'num_comments': 0}
         testpost2 = {'title': 'I have 1.14 running',
