@@ -39,8 +39,13 @@ class SentimentAnalyzer:
 
     def send_data(self, result):
         # Sender result til databasen
-        logger.info(f'Now sending {result["url"]}')
-        requests.post(self.url + "/coins", result)
+        try:
+            logger.info(f'Now sending {result["url"]}')
+            r = requests.post(self.url + "/coins", result)
+            r.raise_for_status()
+            logger.debug(f'Sent with status {r.status_code}')
+        except Exception as e:
+            logger.error(e)
 
     def main_logic(self):
         # Opens the json object
