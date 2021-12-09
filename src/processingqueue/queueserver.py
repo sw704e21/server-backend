@@ -17,7 +17,7 @@ class QueueServer:
     def run(self):
         adm = kafka.KafkaAdminClient(bootstrap_servers=self.server, api_version=self.api_version)
         consumer = kafka.KafkaConsumer(self.topic, bootstrap_servers=self.server, api_version=self.api_version,
-                                       group_id="readposts")
+                                       group_id="readposts", enable_auto_commit=True, auto_commit_interval_ms=1000)
         if self.topic not in adm.list_topics():
             logger.error(f"Topic {self.topic} not present at kafka server")
             exit(1)
