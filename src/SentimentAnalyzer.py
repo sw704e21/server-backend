@@ -67,21 +67,22 @@ class SentimentAnalyzer:
 
         # Updates the Word Dictionary
         coins = self.extract_coin(full_text)
-        for coin in coins:
-            self.manage_dictionary(url, timestamp, full_text, coin)
+        if len(coins) > 0:
+            for coin in coins:
+                self.manage_dictionary(url, timestamp, full_text, coin)
 
-        result = {
-            'timestamp': data['created_utc'],
-            'identifiers': coins,
-            'sentiment': score,
-            'interaction': int(data['score']) + int(data['num_comments']),
-            'url': data['permalink'],
-            'influence': data['karma'],
-            'uuid': data['uuid'],
-            'source': data['source']
-        }
+            result = {
+                'timestamp': data['created_utc'],
+                'identifiers': coins,
+                'sentiment': score,
+                'interaction': int(data['score']) + int(data['num_comments']),
+                'url': data['permalink'],
+                'influence': data['karma'],
+                'uuid': data['uuid'],
+                'source': data['source']
+            }
 
-        self.send_data(result)
+            self.send_data(result)
 
     def manage_dictionary(self, url, timestamp, post_text, coin):
         # Check hvis dokumenterne eksisterer for den givne coin
