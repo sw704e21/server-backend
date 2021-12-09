@@ -16,7 +16,8 @@ class SentimentAnalyzer:
         self.url = 'http://cryptoserver.northeurope.cloudapp.azure.com'
 
     def initialize_dictionary(self, coin):
-        dic = {}
+        r = requests.get(self.url + f'/data/tfdict/{coin}')
+        dic = r.json()
 
         a_file = open("worddictionary%s.pkl" % coin, "wb")
         pickle.dump(dic, a_file)
