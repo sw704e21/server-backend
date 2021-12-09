@@ -8,6 +8,7 @@ import datetime
 import os
 import logging
 import re
+
 logger = logging.getLogger("backend")
 
 
@@ -94,10 +95,10 @@ class SentimentAnalyzer:
         # Splitting the text into tokens, splitting them at each space symbols.
         # Removing symbols
         post_text = re.sub(r'\'', '', post_text)
-        post_text = re.sub("\d+", "", post_text)
+        post_text = re.sub(r"\d+", "", post_text)
         cleantext = re.sub(r'[^\w]', ' ', post_text)
         no_special_characters = cleantext.split()
-        dstemmer = SnowballStemmer("english")
+        # dstemmer = SnowballStemmer("english")
 
         # Laver et dictionary, som gemmer words og mapper det til total occurence
         for word in no_special_characters:
