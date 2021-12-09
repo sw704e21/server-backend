@@ -59,13 +59,13 @@ class SentimentAnalyzer:
         url = data['permalink']
 
         # Updates the Word Dictionary
-        coin = data['coin']
-
-        self.manage_dictionary(url, timestamp, post_text, coin)
+        coins = self.extract_coin(full_text)
+        for coin in coins:
+            self.manage_dictionary(url, timestamp, full_text, coin)
 
         result = {
             'timestamp': data['created_utc'],
-            'identifiers': self.extract_coin(full_text),
+            'identifiers': coins,
             'sentiment': score,
             'interaction': int(data['score']) + int(data['num_comments']),
             'url': data['permalink'],
@@ -132,13 +132,18 @@ class SentimentAnalyzer:
         self.add_to_delete_dictionary(url, timestamp, coin)
 
         # Opdaterer worddictionary
-        logger.info("Updated dictionary")
-        a_file = open("worddictionary%s.pkl" % coin, "wb")
-        pickle.dump(dictionary, a_file)
-        a_file.close()
-        r = requests.post(self.url + "/data/tfdict/" + coin, dictionary)
-        r.raise_for_status()
-        logger.debug(f"Updated dictionary with status {r.status_code}")
+        logger.info("Updating dictionary")
+        try:
+            a_file = open("worddictionary%s.pkl" % coin, "wb")
+            pickle.dump(dictionary, a_file)
+            a_file.close()
+            s = json.dumps(dictionary)
+            print(s.encode('utf-8').__sizeof__())
+            r = requests.post(self.url + "/data/tfdict/" + coin, json=dictionary)
+            r.raise_for_status()
+            logger.debug(f"Updated dictionary with status {r.status_code}")
+        except Exception as e:
+            logger.error(e)
 
     def add_to_delete_dictionary(self, url, timestamp, coin):
         # Åbner deletedictionary

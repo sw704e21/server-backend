@@ -12,7 +12,7 @@ class QueueServer:
         self.server = self.host + ":" + self.port
         self.api_version = (2, 4, 0)
         self.topic = "PostsToProcess"
-        self.queue = multiprocessing.Queue()
+        self.queue = multiprocessing.Queue(100)
 
     def run(self):
         adm = kafka.KafkaAdminClient(bootstrap_servers=self.server, api_version=self.api_version)
@@ -27,7 +27,7 @@ class QueueServer:
             try:
                 logger.info("Received data")
                 data = p.value
-                self.queue.put(data.decode('utf-8'))
+                self.queue.put(data.decode('utf-8'), block=True, timeout=None)
             except Exception as e:
                 logger.error(e)
 

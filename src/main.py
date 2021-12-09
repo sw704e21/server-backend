@@ -1,5 +1,5 @@
 from processingqueue.queueserver import QueueServer
-from multiprocessing import Process
+from multiprocessing import Process, Manager, Value
 from calculate_scores import ScoreCalculator
 import time
 import logging
@@ -18,23 +18,34 @@ handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
+manager = Manager()
+dequeue_count = Value('i', 0, lock=True)
+
 
 # A process which starts dequeue processes periodically if queue is non-empty
 def manage_processes(server, process_delay):
     while True:
         p = Process(target=start_dequeue_process, args=(server,))
         # If something is in queue, start a new process
-        if server.queue.qsize() > 0:
+        if server.queue.qsize() > 0 and dequeue_count.value < 10:
             logger.info('Starting new dequeue process')
             p.start()
+            with dequeue_count.get_lock():
+                dequeue_count.value += 1
         time.sleep(process_delay)
 
 
 # While something is in queue, keep processing items in queue
 def start_dequeue_process(server):
-    while server.queue.qsize() > 0:
-        server.dequeue()
-    logger.info('Now closing dequeue process')
+    try:
+        while server.queue.qsize() > 0:
+            server.dequeue()
+        logger.info('Now closing dequeue process')
+    except Exception as e:
+        logger.error(e)
+    finally:
+        with dequeue_count.get_lock():
+            dequeue_count.value -= 1
 
 
 if __name__ == '__main__':
