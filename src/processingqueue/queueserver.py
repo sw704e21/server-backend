@@ -29,7 +29,7 @@ class QueueServer:
                 data = p.value
                 self.queue.put(data.decode('utf-8'), block=True, timeout=None)
             except Exception as e:
-                logger.error(e)
+                logger.error(e.args)
 
     def dequeue(self):
         # Takes item from queue and hands it to sentiments analyzer, called by processes from main

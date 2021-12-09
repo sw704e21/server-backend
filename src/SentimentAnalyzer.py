@@ -44,6 +44,8 @@ class SentimentAnalyzer:
             r = requests.post(self.url + "/coins", result)
             r.raise_for_status()
             logger.debug(f'Sent with status {r.status_code}')
+            if r.status_code != 201:
+                logger.error(r.json())
         except Exception as e:
             logger.error(e)
 
