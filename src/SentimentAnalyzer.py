@@ -1,6 +1,4 @@
 import pickle
-
-from nltk import SnowballStemmer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
