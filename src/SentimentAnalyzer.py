@@ -89,6 +89,7 @@ class SentimentAnalyzer:
         # Splitting the text into tokens, splitting them at each space symbols.
         # Removing symbols
         post_text = re.sub(r'\'', '', post_text)
+        post_text = re.sub("\d+", "", post_text)
         cleantext = re.sub(r'[^\w]', ' ', post_text)
         no_special_characters = cleantext.split()
         dstemmer = SnowballStemmer("english")
@@ -96,11 +97,11 @@ class SentimentAnalyzer:
         # Laver et dictionary, som gemmer words og mapper det til total occurence
         for word in no_special_characters:
             # Stemming each word
-            tword = dstemmer.stem(word)
-            if tword in dic:
-                dic[tword] = dic[tword] + 1
+            # tword = dstemmer.stem(word)
+            if word in dic:
+                dic[word] = dic[word] + 1
             else:
-                dic[tword] = 1
+                dic[word] = 1
 
         # Loader dictionary med alle words
         a_file = open("worddictionary%s.pkl" % coin, "rb")

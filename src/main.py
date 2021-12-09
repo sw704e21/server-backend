@@ -42,7 +42,7 @@ def start_dequeue_process(server):
             server.dequeue()
         logger.info('Now closing dequeue process')
     except Exception as e:
-        logger.error(e)
+        logger.error(e.__str__())
     finally:
         with dequeue_count.get_lock():
             dequeue_count.value -= 1
