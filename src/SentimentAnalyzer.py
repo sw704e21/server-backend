@@ -149,7 +149,7 @@ class SentimentAnalyzer:
             r.raise_for_status()
             logger.debug(f"Updated dictionary with status {r.status_code}")
         except Exception as e:
-            logger.error(e)
+            logger.error(e.args)
 
     def add_to_delete_dictionary(self, url, timestamp, coin):
         # Åbner deletedictionary
