@@ -6,13 +6,13 @@ logger = logging.getLogger("backend")
 
 
 class QueueServer:
-    def __init__(self):
+    def __init__(self, qsize=100):
         self.host = "104.41.213.247"
         self.port = "9092"
         self.server = self.host + ":" + self.port
         self.api_version = (2, 4, 0)
         self.topic = "PostsToProcess"
-        self.queue = multiprocessing.Queue(100)
+        self.queue = multiprocessing.Queue(qsize)
 
     def run(self):
         adm = kafka.KafkaAdminClient(bootstrap_servers=self.server, api_version=self.api_version)
@@ -25,7 +25,6 @@ class QueueServer:
         logger.info(f"Start listening to {self.topic}")
         for p in consumer:
             try:
-                logger.debug(f'Current queue size: {self.queue.qsize()}')
                 logger.info("Received data")
                 data = p.value
                 self.queue.put(data.decode('utf-8'), block=True, timeout=None)

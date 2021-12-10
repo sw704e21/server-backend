@@ -30,8 +30,6 @@ def manage_processes(server, process_delay):
     while True:
 
         # If something is in queue, start a new process
-        logger.debug(f'Current queue size: {server.queue.qsize()}')
-        logger.debug(f'Current process count: {dequeue_count.value} / {max_process_count}')
         if server.queue.qsize() > 0 and dequeue_count.value < max_process_count:
             p = Process(target=start_dequeue_process, args=(server,))
             logger.info('Starting new dequeue process')
@@ -55,7 +53,7 @@ def start_dequeue_process(server):
 
 
 if __name__ == '__main__':
-    server = QueueServer()
+    server = QueueServer(max_process_count + 1)
     score_calc = ScoreCalculator()
     server_process = Process(target=server.run)
     thread_process = Process(target=manage_processes, args=(server, 10))
