@@ -3,7 +3,6 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer as SIA
 import requests
 import json
 import datetime
-import os
 import logging
 import re
 
