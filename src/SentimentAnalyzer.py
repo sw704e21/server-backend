@@ -53,7 +53,6 @@ class SentimentAnalyzer:
         # Opens the json object
         data = json.loads(self.data)
 
-
         # Extracts the headline and post text.
         headline = data['title']
         post_text = data['selftext']
