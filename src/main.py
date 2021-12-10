@@ -1,5 +1,5 @@
 from processingqueue.queueserver import QueueServer
-from multiprocessing import Process, Manager, Value, cpu_count
+from multiprocessing import Process, Value, cpu_count
 from calculate_scores import ScoreCalculator
 import time
 import logging
