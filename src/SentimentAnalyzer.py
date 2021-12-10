@@ -53,21 +53,23 @@ class SentimentAnalyzer:
         # Opens the json object
         data = json.loads(self.data)
 
+
         # Extracts the headline and post text.
         headline = data['title']
         post_text = data['selftext']
         full_text = headline + post_text
-
-        # Analyzes a post, and saves the result in a result variable
-        score = self.analyze_posts(full_text)
-
-        # Extracts the timestamp and url.
-        timestamp = data['created_utc']
-        url = data['permalink']
-
-        # Updates the Word Dictionary
         coins = self.extract_coin(full_text)
         if len(coins) > 0:
+
+            # Analyzes a post, and saves the result in a result variable
+            score = self.analyze_posts(full_text)
+
+            # Extracts the timestamp and url.
+            timestamp = data['created_utc']
+            url = data['permalink']
+
+            # Updates the Word Dictionary
+
             for coin in coins:
                 self.manage_dictionary(url, timestamp, full_text, coin)
 
@@ -83,6 +85,8 @@ class SentimentAnalyzer:
             }
 
             self.send_data(result)
+        else:
+            logger.debug(f"No coins found in text with url: {data['permalink']}")
 
     def manage_dictionary(self, url, timestamp, post_text, coin):
         # Check hvis dokumenterne eksisterer for den givne coin
