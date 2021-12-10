@@ -64,13 +64,13 @@ class SentimentAnalyzer:
             score = self.analyze_posts(full_text)
 
             # Extracts the timestamp and url.
-            timestamp = data['created_utc']
-            url = data['permalink']
+            # timestamp = data['created_utc']
+            # url = data['permalink']
 
             # Updates the Word Dictionary
 
             # for coin in coins:
-                # self.manage_dictionary(url, timestamp, full_text, coin)
+            # self.manage_dictionary(url, timestamp, full_text, coin)
 
             result = {
                 'timestamp': data['created_utc'],
