@@ -228,7 +228,7 @@ class SentimentAnalyzer:
         text = text.lower()
         tags = {}
         for i in r.json():
-            tags[i['identifier']] = i['tags'].lower()
+            tags[i['identifier']] = [tag.lower() for tag in i['tags']]
         result = []
         for key in tags.keys():
             for tag in tags[key]:
