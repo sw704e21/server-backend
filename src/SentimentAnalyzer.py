@@ -69,8 +69,8 @@ class SentimentAnalyzer:
 
             # Updates the Word Dictionary
 
-            for coin in coins:
-                self.manage_dictionary(url, timestamp, full_text, coin)
+            # for coin in coins:
+                # self.manage_dictionary(url, timestamp, full_text, coin)
 
             result = {
                 'timestamp': data['created_utc'],
@@ -225,9 +225,10 @@ class SentimentAnalyzer:
 
     def extract_coin(self, text: str):
         r = requests.get(self.url + "/track/tags")
+        text = text.lower()
         tags = {}
         for i in r.json():
-            tags[i['identifier']] = i['tags']
+            tags[i['identifier']] = i['tags'].lower()
         result = []
         for key in tags.keys():
             for tag in tags[key]:
