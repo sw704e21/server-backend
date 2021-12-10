@@ -28,9 +28,12 @@ max_process_count = cpu_count()
 # A process which starts dequeue processes periodically if queue is non-empty
 def manage_processes(server, process_delay):
     while True:
-        p = Process(target=start_dequeue_process, args=(server,))
+
         # If something is in queue, start a new process
+        logger.debug(f'Current queue size: {server.queue.qsize()}')
+        logger.debug(f'Current process count: {dequeue_count.value} / {max_process_count}')
         if server.queue.qsize() > 0 and dequeue_count.value < max_process_count:
+            p = Process(target=start_dequeue_process, args=(server,))
             logger.info('Starting new dequeue process')
             p.start()
             with dequeue_count.get_lock():

@@ -28,6 +28,7 @@ class QueueServer:
                 logger.info("Received data")
                 data = p.value
                 self.queue.put(data.decode('utf-8'), block=True, timeout=None)
+                logger.debug(f'Current queue size: {self.queue.qsize()}')
             except Exception as e:
                 logger.error(e.args)
 
