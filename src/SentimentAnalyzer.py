@@ -64,13 +64,13 @@ class SentimentAnalyzer:
             score = self.analyze_posts(full_text)
 
             # Extracts the timestamp and url.
-            # timestamp = data['created_utc']
-            # url = data['permalink']
+            timestamp = data['created_utc']
+            url = data['permalink']
 
             # Updates the Word Dictionary
 
-            # for coin in coins:
-            # self.manage_dictionary(url, timestamp, full_text, coin)
+            for coin in coins:
+                self.manage_dictionary(url, timestamp, full_text, coin)
 
             result = {
                 'timestamp': data['created_utc'],
@@ -88,17 +88,12 @@ class SentimentAnalyzer:
             logger.debug(f"No coins found in text with url: {data['permalink']}")
 
     def manage_dictionary(self, url, timestamp, post_text, coin):
-        # Check hvis dokumenterne eksisterer for den givne coin
-        if not os.path.exists("./worddictionary%s.pkl" % coin):
-            self.initialize_dictionary(coin)
-
-        if not os.path.exists("./deletedictionary%s.pkl" % coin):
-            self.initialize_delete_dictionary(coin)
 
         # Fixing sentiment:
         dic = {}
         # Splitting the text into tokens, splitting them at each space symbols.
         # Removing symbols
+        post_text = post_text.upper()
         post_text = re.sub(r'\'', '', post_text)
         post_text = re.sub(r"\d+", "", post_text)
         cleantext = re.sub(r'[^\w]', ' ', post_text)
@@ -113,44 +108,10 @@ class SentimentAnalyzer:
                 dic[word] = dic[word] + 1
             else:
                 dic[word] = 1
-
-        # Loader dictionary med alle words
-        a_file = open("worddictionary%s.pkl" % coin, "rb")
-        dictionary = pickle.load(a_file)
-        a_file.close()
-
-        # For hvert word i sorted sentiment:
-        for word in dic:
-            # Check om det word eksisterer i dictionary
-            if word in dictionary:
-                # Hvis det gør, adder total amount, sæt url og timestamp ind.
-                temp = dictionary[word]
-                total = temp['total'] + dic[word]
-                occurences = temp['occurences']
-                occurences[url] = (dic[word], timestamp)
-                temp['total'] = total
-                temp['occurences'] = occurences
-                dictionary[word] = temp
-            else:
-                # Hvis ikke, lav en ny entry i dictionary, sæt total amount, url og timestamp.
-                temp = {}
-                ocur = {}
-                temp['total'] = dic[word]
-                ocur[url] = (dic[word], timestamp)
-                temp['occurences'] = ocur
-                dictionary[word] = temp
-
-        # Adding the post to the delete-dictionary
-        self.add_to_delete_dictionary(url, timestamp, coin)
-
+        dictionary = {'url': url, 'timestamp': timestamp, 'words': dic}
         # Opdaterer worddictionary
         logger.info("Updating dictionary")
         try:
-            a_file = open("worddictionary%s.pkl" % coin, "wb")
-            pickle.dump(dictionary, a_file)
-            a_file.close()
-            s = json.dumps(dictionary)
-            print(s.encode('utf-8').__sizeof__())
             r = requests.post(self.url + "/data/tfdict/" + coin, json=dictionary)
             r.raise_for_status()
             logger.debug(f"Updated dictionary with status {r.status_code}")

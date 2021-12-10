@@ -5,6 +5,8 @@ import time
 import logging
 import datetime
 import os
+LEVEL = 'PRODUCTION'
+# LEVEL = 'DEVELOPMENT'
 logger = logging.getLogger("backend")
 logger.setLevel(logging.DEBUG)
 
@@ -12,13 +14,18 @@ formatter = logging.Formatter('%(name)s:%(levelname)s - %(asctime)s %(message)s'
 
 now = datetime.datetime.now()
 
-handler = logging.FileHandler(f"{os.getcwd()}/logs/{now.day}-{now.month}-{now.year}.log", "a")
+if LEVEL == 'PRODUCTION':
+    handler = logging.FileHandler(f"{os.getcwd()}/logs/{now.day}-{now.month}-{now.year}.log", "a")
+elif LEVEL == 'DEVELOPMENT':
+    handler = logging.StreamHandler()
+else:
+    handler = None
+
 handler.setLevel(logging.DEBUG)
 handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
-manager = Manager()
 dequeue_count = Value('i', 0, lock=True)
 
 # It does not make sense to make more dequeue processes than there are cpu cores.
