@@ -53,7 +53,7 @@ def start_dequeue_process(server):
 
 
 if __name__ == '__main__':
-    server = QueueServer(max_process_count * 16)
+    server = QueueServer(max_process_count * 4)
     score_calc = ScoreCalculator()
     server_process = Process(target=server.run)
     thread_process = Process(target=manage_processes, args=(server, 10))
