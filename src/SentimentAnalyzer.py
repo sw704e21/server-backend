@@ -38,6 +38,7 @@ class SentimentAnalyzer:
 
     def send_data(self, result):
         # Sender result til databasen
+        r = None
         try:
             logger.info(f'Now sending {result["url"]}')
             r = requests.post(self.url + "/coins", result)
@@ -46,7 +47,9 @@ class SentimentAnalyzer:
             if r.status_code != 201:
                 logger.error(r.json())
         except Exception as e:
-            logger.error(e)
+            logger.error(e.args)
+        finally:
+            return r.status_code
 
     def main_logic(self):
         # Opens the json object
@@ -66,11 +69,6 @@ class SentimentAnalyzer:
             timestamp = data['created_utc']
             url = data['permalink']
 
-            # Updates the Word Dictionary
-
-            for coin in coins:
-                self.manage_dictionary(url, timestamp, full_text, coin)
-
             result = {
                 'timestamp': data['created_utc'],
                 'identifiers': coins,
@@ -82,7 +80,12 @@ class SentimentAnalyzer:
                 'source': data['source']
             }
 
-            self.send_data(result)
+            status = self.send_data(result)
+
+            # Updates the Word Dictionary
+            if status == 201:
+                for coin in coins:
+                    self.manage_dictionary(url, timestamp, full_text, coin)
         else:
             logger.debug(f"No coins found in text with url: {data['permalink']}")
 
@@ -194,7 +197,7 @@ class SentimentAnalyzer:
             for tag in tags[key]:
                 if tag in text:
                     result.append(key)
-        return result
+        return set(result)
 
     def test(self):
         testpost = {'title': '&Doge is¤ speaking $Tesla, isn\'t',
