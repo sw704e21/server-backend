@@ -66,7 +66,7 @@ class ScoreCalculator:
             sentiment_score = self.sentiment_score(sentiment_average)
             correlation_score = self.correlation_score(price_list, social_list, sentiment_list)
 
-            dict = {"identifier": self.get_coin_id()[i],
+            dict = {"identifier": coins_id[i],
                     "price_score": "{:.1f}".format(price_score),
                     "social_score": "{:.1f}".format(social_score),
                     "average_sentiment": "{:.1f}".format(sentiment_score),
@@ -126,3 +126,7 @@ class ScoreCalculator:
             else:
                 social_list.append(0)
         return social_list
+
+
+score = ScoreCalculator()
+score.handle_scores()
