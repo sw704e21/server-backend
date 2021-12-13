@@ -51,15 +51,15 @@ class ScoreCalculator:
         return round(int(score_sum * (score_sum/4)))
 
     def handle_scores(self):
-
+        coins_id = self.coins_id
         for i in range(len(self.coins_id)):
-            price_list = self.get_scoredata("price", self.coins_id[i])
-            mentions_list = self.get_scoredata("mentions", self.coins_id[i])
-            interactions_list = self.get_scoredata("interactions", self.coins_id[i])
+            price_list = self.get_scoredata("price", coins_id[i])
+            mentions_list = self.get_scoredata("mentions", coins_id[i])
+            interactions_list = self.get_scoredata("interactions", coins_id[i])
             social_list = self.social_calculation(mentions_list, interactions_list)
-            sentiment_list = self.get_scoredata("sentiment", self.coins_id[i])['list']
-            sentiment_average = self.get_scoredata("sentiment", self.coins_id[i])['24hours']
-            influence = self.get_coindata(self.coins_id[i])['mostInfluence']
+            sentiment_list = self.get_scoredata("sentiment", coins_id[i])['list']
+            sentiment_average = self.get_scoredata("sentiment", coins_id[i])['24hours']
+            influence = self.get_coindata(coins_id[i])['mostInfluence']
 
             price_score = self.price_score(price_list)
             social_score = self.social_score(social_list, influence)
@@ -121,7 +121,7 @@ class ScoreCalculator:
     def social_calculation(self, mentions, interactions):
         social_list = []
         for i in range(len(mentions)):
-            if interactions[i] != 0:
+            if interactions[i] != 0 or mentions[i] != 0:
                 social_list.append(interactions[i]/mentions[i])
             else:
                 social_list.append(0)
