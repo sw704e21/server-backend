@@ -24,8 +24,11 @@ class ScoreCalculator:
 
     def price_score(self, price_list):
         daily_average = sum(price_list)/len(price_list)
-        price_score = normalize_multi([price_list[0]], (daily_average * 0.95, daily_average * 1.05), (0, 5))
-        return float(price_score[0])
+        if daily_average == 0:
+            return 0
+        else:
+            price_score = normalize_multi([price_list[0]], (daily_average * 0.95, daily_average * 1.05), (0, 5))
+            return float(price_score[0])
 
     def social_score(self, social_list, influence):
         average_socialscore = sum(social_list)/len(social_list)
