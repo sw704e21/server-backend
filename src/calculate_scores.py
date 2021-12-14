@@ -56,27 +56,29 @@ class ScoreCalculator:
     def handle_scores(self):
         coins_id = self.get_coin_id()
         for i in range(len(self.coins_id)):
-            price_list = self.get_scoredata("price", coins_id[i])
-            mentions_list = self.get_scoredata("mentions", coins_id[i])
-            interactions_list = self.get_scoredata("interactions", coins_id[i])
-            social_list = self.social_calculation(mentions_list, interactions_list)
-            sentiment_list = self.get_scoredata("sentiment", coins_id[i])['list']
-            sentiment_average = self.get_scoredata("sentiment", coins_id[i])['24hours']
-            influence = self.get_coindata(coins_id[i])['mostInfluence']
+            try:
+                price_list = self.get_scoredata("price", coins_id[i])
+                mentions_list = self.get_scoredata("mentions", coins_id[i])
+                interactions_list = self.get_scoredata("interactions", coins_id[i])
+                social_list = self.social_calculation(mentions_list, interactions_list)
+                sentiment_list = self.get_scoredata("sentiment", coins_id[i])['list']
+                sentiment_average = self.get_scoredata("sentiment", coins_id[i])['24hours']
+                influence = self.get_coindata(coins_id[i])['mostInfluence']
 
-            price_score = self.price_score(price_list)
-            social_score = self.social_score(social_list, influence)
-            sentiment_score = self.sentiment_score(sentiment_average)
-            correlation_score = self.correlation_score(price_list, social_list, sentiment_list)
+                price_score = self.price_score(price_list)
+                social_score = self.social_score(social_list, influence)
+                sentiment_score = self.sentiment_score(sentiment_average)
+                correlation_score = self.correlation_score(price_list, social_list, sentiment_list)
 
-            dict = {"identifier": coins_id[i],
-                    "price_score": "{:.1f}".format(price_score),
-                    "social_score": "{:.1f}".format(social_score),
-                    "average_sentiment": "{:.1f}".format(sentiment_score),
-                    "correlation_rank": "{:.1f}".format(correlation_score),
-                    "final_score": self.final_score(price_score, social_score, sentiment_score, correlation_score)}
-            print("Score dictionary: ", dict)
-            self.post_scoredata(dict)
+                dict = {"identifier": coins_id[i],
+                        "price_score": "{:.1f}".format(price_score),
+                        "social_score": "{:.1f}".format(social_score),
+                        "average_sentiment": "{:.1f}".format(sentiment_score),
+                        "correlation_rank": "{:.1f}".format(correlation_score),
+                        "final_score": self.final_score(price_score, social_score, sentiment_score, correlation_score)}
+                self.post_scoredata(dict)
+            except Exception as e:
+                logger.error(e)
 
     def score_schedule(self):
         schedule.every().hour.at(':15').do(self.handle_scores)
