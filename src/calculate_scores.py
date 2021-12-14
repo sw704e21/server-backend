@@ -54,7 +54,7 @@ class ScoreCalculator:
         return round(int(score_sum * (score_sum/4)))
 
     def handle_scores(self):
-        coins_id = self.coins_id
+        coins_id = self.get_coin_id()
         for i in range(len(self.coins_id)):
             price_list = self.get_scoredata("price", coins_id[i])
             mentions_list = self.get_scoredata("mentions", coins_id[i])
