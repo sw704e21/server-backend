@@ -7,7 +7,7 @@ logger = logging.getLogger("backend")
 
 class QueueServer:
     def __init__(self, qsize=100):
-        self.host = "104.41.213.247"
+        self.host = "13.94.88.221"
         self.port = "9092"
         self.server = self.host + ":" + self.port
         self.api_version = (2, 4, 0)
